@@ -1,3 +1,7 @@
+
+typedef unsigned char  byte;
+typedef unsigned short dbyte;
+
 // // //
 // The Chip-8 language is capable of accessing up to 4KB (4,096 bytes) of RAM,
 // from location 0x000 (0) to 0xFFF (4095). The first 512 bytes, from 0x000
@@ -30,7 +34,7 @@
 // // // 
 #define PROG_START     0x200
 #define PROG_START_ETI 0x600
-static unsigned char ram[4096];
+static byte ram[4096];
 
 // // //
 // Chip-8 has 16 general purpose 8-bit registers, usually referred to as Vx,
@@ -55,13 +59,13 @@ static unsigned char ram[4096];
 // the interpreter shoud return to when finished with a subroutine. Chip-8 
 // allows for up to 16 levels of nested subroutines.
 // // //
-static unsigned char vx[16];
-static unsigned short i;
-static unsigned char dt;
-static unsigned char st;
-static unsigned short pc;
-static unsigned char sp;
-static unsigned short stack[16];
+static byte v[16];
+static dbyte i;
+static byte dt;
+static byte st;
+static dbyte pc;
+static byte sp;
+static dbyte stack[16];
 
 // // // 
 // The original implementation of the Chip-8 language used a 64x32-pixel 
@@ -71,7 +75,7 @@ static unsigned short stack[16];
 // | (0,31)   (63,31) |
 // --------------------
 // // // 
-static unsigned char display[2048];
+static byte display[2048];
 
 // // //
 // Chip-8 draws graphics on screen through the use of sprites. A sprite is a
@@ -83,7 +87,7 @@ static unsigned char display[2048];
 // should be stored in the interpreter area of Chip-8 memory (0x000 to 0x1FF).
 // Below is a listing of each character's bytes, in binary and hexadecimal:
 // // //
-static const unsigned char chars[16][5] = {
+static const byte chars[16][5] = {
   {0xf0, 0x90, 0x90, 0x90, 0xf0}, // 0
   {0x20, 0x60, 0x20, 0x20, 0x70}, // 1
   {0xf0, 0x10, 0xf0, 0x80, 0xf0}, // 2
@@ -107,29 +111,95 @@ static const unsigned char chars[16][5] = {
 // Super Chip-48 added an additional 10 instructions, for a total of 46.
 // // //
 
-#define CLSc 0x00e0
+#define CLS_c 0x00e0
 static inline void CLS(void) {
-  for (unsigned short pixel = 0; pixel < 2048; pixel++)
+  // Clears the screen
+  for (dbyte pixel = 0; pixel < 2048; pixel++)
     display[pixel] = 0;
 }
 
-#define RETc 0x00ee
+#define RET_c 0x00ee
 static inline void RET(void) {
+  // Return from a subroutine.
   pc = stack[sp--];
 }
 
-#define JPc 0x1000
-static inline void JP(unsigned short addr) {
-  pc = addr;
+#define JP_addr_c 0x1000
+static inline void JP_addr(dbyte nnn) {
+  // Jump to location nnn.
+  pc = nnn;
 }
 
-#define CALLc 0x2000
-static inline void CALL(unsigned short addr) {
+#define CALL_addr_c 0x2000
+static inline void CALL_addr(dbyte nnn) {
+  // Call subroutine at nnn.
   stack[++sp] = pc;
-  pc = addr;
+  pc = nnn;
 }
 
-#define SEc 0x3000
-static inline void SE(unsigned char x, unsigned char kk) {
-
+#define SE_Vx_byte_c 0x3000
+static inline void SE_Vx_byte(byte x, byte kk) {
+  // Skip next instruction if Vx = kk.
+  if(v[x] == kk)
+    pc += 2;
 }
+
+#define SNE_Vx_byte_c 0x4000
+static inline void SNE_Vx_byte(byte x, byte kk) {
+  // Skip next instruction if Vx != kk.
+  if (v[x] != kk)
+    pc += 2;
+}
+
+#define SE_Vx_Vy_c 0x5000
+static inline void SE_Vx_Vy(byte x, byte y) {
+  // Skip next instruction if Vx = Vy.
+  if(v[x] == v[y])
+    pc += 2;
+}
+
+#define LD_Vx_byte_c 0x6000
+static inline void LD_Vx_byte(byte x, byte kk) {
+  // Set Vx = kk.
+  v[x] = kk;
+}
+
+#define ADD_Vx_byte_c 0x7000
+static inline void ADD_Vx_byte(byte x, byte kk) {
+  // Set Vx = Vx + kk.
+  v[x] += kk;
+}
+
+#define LD_Vx_Vy_c 0x8000
+static inline void LD_Vx_Vy(byte x, byte y) {
+  // Set Vx = Vy.
+  v[x] = v[y];
+} 
+
+#define OR_Vx_Vy_c 0x8001
+static inline void OR_Vx_Vy(byte x, byte y) {
+  // Set Vx = Vx OR Vy.
+  v[x] |= v[y];
+} 
+
+#define AND_Vx_Vy_c 0x8002
+static inline void AND_Vx_Vy(byte x, byte y) {
+  // Set Vx = Vx AND Vy.
+  v[x] &= v[y];
+} 
+
+#define XOR_Vx_Vy_c 0x8003
+static inline void XOR_Vx_Vy(byte x, byte y) {
+  // Set Vx = Vx XOR Vy.
+  v[x] ^= v[y];
+} 
+
+#define ADD_Vx_Vy_c 0x8003
+static inline void ADD_Vx_Vy(byte x, byte y) {
+  // Set Vx = Vx + Vy, set VF = carry,
+  const dbyte res = v[x] + v[y];
+  v[0xf] = (res > 255)? 1 : 0;
+  v[x] = res & 0xff;
+} 
+
+
