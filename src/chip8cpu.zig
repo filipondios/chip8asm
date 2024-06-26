@@ -222,7 +222,7 @@ pub const Chip8CPU = struct {
     /// (0x8xy6)
     pub fn shr_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
         self.regv[0xf] = ((0x1 & self.regv[x]));
-        self.regv[x] = @truncate(self.regv[x] >> 0x1);
+        self.regv[x] = @shrExact(self.regv[x], 0x1);
         self.pc += 2;
         _ = y;
     }
@@ -244,7 +244,7 @@ pub const Chip8CPU = struct {
     /// (0x8xye)
     pub fn shl_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
         self.regv[0xf] = ((0x80 & self.regv[x]));
-        self.regv[x] = @truncate(self.regv[x] << 0x1);
+        self.regv[x] = @shlExact(self.regv[x], 0x1);
         self.pc += 2;
         _ = y;
     }
@@ -291,17 +291,27 @@ pub const Chip8CPU = struct {
     /// this causes any pixels to be erased, VF is set to 1, otherwise 0.
     /// (0xdxyn)
     pub fn drw_vx_vy_nibble(self: *Chip8CPU, x: u8, y: u8, n: u8) void {
-        const cx = self.regv[x];
-        const cy = self.regv[y];
+        const cx: u8 = self.regv[x];
+        const cy: u8 = self.regv[y];
         self.regv[0xf] = 0;
         self.pc += 2;
 
-        for (0..n - 1) |i| {
+        var i: u8 = 0;
+        var j: u8 = 0;
+        var mask_bit: u8 = 0;
+        var index: u16 = 0;
+
+        while (i <= n - 1) : (i += 1) {
             const sprite: u8 = self.ram[self.i + i];
 
-            for (0..7) |bit| {
-                if ((sprite & (0x80 >> bit)) != 0) {
-                    const index: u16 = ((cx + bit) + ((cy + i) * 64)) % 2048;
+            while (j <= 7) : (j += 1) {
+                mask_bit = 0x80;
+                mask_bit >>= @truncate(j);
+
+                if ((sprite & mask_bit) != 0) {
+                    index = ((cx + j) + ((cy + i) * 64));
+                    index %= 2048;
+
                     // Detect colision at display (used pixel)
                     if (self.display[index] == 1)
                         self.regv[0xf] = 1;
@@ -346,7 +356,7 @@ pub const Chip8CPU = struct {
         for (0x0..0xf) |key| {
             if (self.keypad[key] == 1) {
                 keypressed = true;
-                self.regv[x] = key;
+                self.regv[x] = @intCast(key);
                 break;
             }
         }
@@ -393,9 +403,9 @@ pub const Chip8CPU = struct {
     /// the ones digit at location I+2.
     /// (0xfx33)
     pub fn ld_b_vx(self: *Chip8CPU, x: u8) void {
-        const val = self.regv[x];
-        self.ram[self.i] = @trunc(val / 100);
-        self.ram[self.i + 1] = @trunc(val / 10) % 10;
+        const val: u8 = self.regv[x];
+        self.ram[self.i] = val / 100;
+        self.ram[self.i + 1] = (val / 10) % 10;
         self.ram[self.i + 2] = (val % 100) % 10;
         self.pc += 2;
     }
@@ -418,5 +428,173 @@ pub const Chip8CPU = struct {
         for (0x0..x) |reg|
             self.regv[reg] = self.ram[self.i + reg];
         self.pc += 2;
+    }
+
+    /// Fetches the next instruction (the one stored in RAM and being pointed
+    /// by the pc register). Then executes the instruction.
+    pub fn exec_next_cicle(self: *Chip8CPU) void {
+        // Fetch the next 2 byte instruction
+        var opcode: u16 = @intCast(self.ram[self.pc]);
+        opcode <<= 8;
+        opcode |= @intCast(self.ram[self.pc + 1]);
+
+        // Get the first nibble. If a instruction is 0xabcd,
+        // then the first nibble is the value 'a'
+        var nibble: u8 = @truncate((opcode & 0xf000) >> 12);
+        switch (nibble) {
+            0 => { // Fixed codes
+                switch (opcode) {
+                    0x00e0 => self.cls(),
+                    0x00ee => self.ret(),
+                    else => unreachable,
+                }
+            },
+            1 => self.jp(opcode & 0x0fff), // 0x1nnn
+            2 => self.call(opcode & 0x0fff), // 0x2nnn
+            3 => { // 0x3xkk
+                self.se_vx_byte(
+                    @truncate((opcode & 0x0f00) >> 8),
+                    @truncate(opcode & 0x00ff),
+                );
+            },
+            4 => { // 0x4xkk
+                self.sne_vx_byte(
+                    @truncate((opcode & 0x0f00) >> 8),
+                    @truncate(opcode & 0x00ff),
+                );
+            },
+            5 => { // 0x5xy0
+                self.se_vx_vy(
+                    @truncate((opcode & 0x0f00) >> 8),
+                    @truncate((opcode & 0x00f0) >> 4),
+                );
+            },
+            6 => { // 0x6xkk
+                self.ld_vx_byte(
+                    @truncate((opcode & 0x0f00) >> 8),
+                    @truncate(opcode & 0x00ff),
+                );
+            },
+            7 => { // 0x7xkk
+                self.add_vx_byte(
+                    @truncate((opcode & 0x0f00) >> 8),
+                    @truncate(opcode & 0x00ff),
+                );
+            },
+            8 => {
+                // Get last nibble
+                nibble = @truncate(opcode & 0x000f);
+                switch (nibble) {
+                    0 => { // 0x 8xy0
+                        self.ld_vx_vy(
+                            @truncate((opcode & 0xf00) >> 8),
+                            @truncate((opcode & 0x0f0) >> 4),
+                        );
+                    },
+                    1 => { // 0x8xy1
+                        self.or_vx_vy(
+                            @truncate((opcode & 0x0f00) >> 8),
+                            @truncate((opcode & 0x00f0) >> 4),
+                        );
+                    },
+                    2 => { // 0x8xy2
+                        self.and_vx_vy(
+                            @truncate((opcode & 0x0f00) >> 8),
+                            @truncate((opcode & 0x00f0) >> 4),
+                        );
+                    },
+                    3 => { // 0x8xy3
+                        self.xor_vx_vy(
+                            @truncate((opcode & 0x0f00) >> 8),
+                            @truncate((opcode & 0x00f0) >> 4),
+                        );
+                    },
+                    4 => { // 0x8xy4
+                        self.add_vx_vy(
+                            @truncate((opcode & 0x0f00) >> 8),
+                            @truncate((opcode & 0x00f0) >> 4),
+                        );
+                    },
+                    5 => { // 0x8xy5
+                        self.sub_vx_vy(
+                            @truncate((opcode & 0x0f00) >> 8),
+                            @truncate((opcode & 0x00f0) >> 4),
+                        );
+                    },
+                    6 => { // 0x8xy6
+                        self.shr_vx_vy(
+                            @truncate((opcode & 0x0f00) >> 8),
+                            undefined,
+                        );
+                    },
+                    7 => { // 0x8xy7
+                        self.subn_vx_vy(
+                            @truncate((opcode & 0x0f00) >> 8),
+                            @truncate((opcode & 0x00f0) >> 4),
+                        );
+                    },
+                    0xe => { // 0x8xye
+                        self.shl_vx_vy(
+                            @truncate((opcode & 0x0f00) >> 8),
+                            undefined,
+                        );
+                    },
+                    // End of 0x8xyz
+                    else => unreachable,
+                }
+            },
+            9 => { // 0x9xy0
+                self.sne_vx_vy(
+                    @truncate((opcode & 0x0f00) >> 8),
+                    @truncate((opcode & 0x00f0) >> 4),
+                );
+            },
+            0xa => { // 0xannn
+                self.ld_i_addr(opcode & 0x0fff);
+            },
+            0xb => { // 0xbnnn
+                self.jp_v0_addr(opcode & 0x0fff);
+            },
+            0xc => { // 0xcxkk
+                self.rnd_vx_byte(
+                    @truncate((opcode & 0x0f00) >> 8),
+                    @truncate(opcode & 0x00ff),
+                );
+            },
+            0xd => { // 0xdxyn
+                self.drw_vx_vy_nibble(
+                    @truncate((opcode & 0x0f00) >> 8),
+                    @truncate((opcode & 0x00f0) >> 4),
+                    @truncate(opcode & 0x000f),
+                );
+            },
+            0xe => {
+                // Get last 2 nibbles
+                nibble = @truncate(opcode & 0x00ff);
+                switch (nibble) {
+                    0x9e => self.skp_vx(@truncate(opcode & 0x0f00)), // 0xex9e
+                    0xa1 => self.skpn_vx(@truncate(opcode & 0x0f00)), // 0xexa1
+                    else => unreachable, // End of 0xexyz
+                }
+            },
+            0xf => {
+                // Get last 2 nibbles
+                nibble = @truncate(opcode & 0x00ff);
+                switch (nibble) {
+                    0x07 => self.ld_vx_dt(@truncate(opcode & 0x0f00)), // 0xfx07
+                    0x0a => self.ld_vx_k(@truncate(opcode & 0x0f00)), // 0xfx0a
+                    0x15 => self.ld_dt_vx(@truncate(opcode & 0x0f00)), // 0xfx15
+                    0x18 => self.ld_st_vx(@truncate(opcode & 0x0f00)), // 0xfx18
+                    0x1e => self.add_i_vx(@truncate(opcode & 0x0f00)), // 0xfx1e
+                    0x29 => self.ld_f_vx(@truncate(opcode & 0x0f00)), // 0xfx29
+                    0x33 => self.ld_b_vx(@truncate(opcode & 0x0f00)), // 0xfx33
+                    0x55 => self.ld_i_vx(@truncate(opcode & 0x0f00)), // 0xfx55
+                    0x65 => self.ld_vx_i(@truncate(opcode & 0x0f00)), // 0xfx65
+                    else => unreachable, // End of 0xfxyz
+                }
+            },
+            // End of global sw
+            else => unreachable,
+        }
     }
 };
