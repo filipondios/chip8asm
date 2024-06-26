@@ -357,6 +357,7 @@ const Chip8CPU = struct {
     /// (0xfx29)
     pub fn ld_f_vx(self: *Chip8CPU, x: u8) void {
         self.i = 5 * self.regv[x];
+        self.pc += 2;
     }
 
     /// Store BCD representation of Vx in memory locations I, I+1, and I+2.
@@ -369,6 +370,7 @@ const Chip8CPU = struct {
         self.ram[self.i] = @trunc(val / 100);
         self.ram[self.i + 1] = @trunc(val / 10) % 10;
         self.ram[self.i + 2] = (val % 100) % 10;
+        self.pc += 2;
     }
 
     /// Store registers V0 through Vx in memory starting at location I.
