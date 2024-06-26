@@ -64,6 +64,15 @@ pub fn build(b: *std.Build) void {
     const run_step = b.step("run", "Run the app");
     run_step.dependOn(&run_cmd.step);
 
+    // This creates a build step. It can be selected like this: `zig build clean`.
+    // This will remove unneded files from the zig-cache directory.
+    const clean_step = b.step("clean", "Clean up");
+    clean_step.dependOn(&b.addRemoveDirTree(b.install_path).step);
+
+    if (@import("builtin").os.tag != .windows) {
+        clean_step.dependOn(&b.addRemoveDirTree(b.pathFromRoot("zig-cache")).step);
+    }
+
     // Creates a step for unit testing. This only builds the test executable
     // but does not run it.
     const lib_unit_tests = b.addTest(.{
