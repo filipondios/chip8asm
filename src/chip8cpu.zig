@@ -85,7 +85,7 @@ pub const Chip8CPU = struct {
 
     /// Clears the 64x32 display buffer
     /// (0x00e0)
-    pub fn cls(self: *Chip8CPU) void {
+    fn cls(self: *Chip8CPU) void {
         for (&self.display) |*pixel|
             pixel.* = 0;
         self.pc += 2;
@@ -95,7 +95,7 @@ pub const Chip8CPU = struct {
     /// The interpreter sets the program counter to the address at the top of
     /// the stack, then subtracts 1 from the stack pointer.
     /// (0x00ee)
-    pub fn ret(self: *Chip8CPU) void {
+    fn ret(self: *Chip8CPU) void {
         self.pc = self.stack[self.sp] + 2;
         self.sp = self.sp - 1;
     }
@@ -103,7 +103,7 @@ pub const Chip8CPU = struct {
     /// Jump to location nnn
     /// The interpreter sets the program counter to nnn.
     /// (0x1nnn)
-    pub fn jp(self: *Chip8CPU, nnn: u16) void {
+    fn jp(self: *Chip8CPU, nnn: u16) void {
         self.pc = nnn;
     }
 
@@ -111,7 +111,7 @@ pub const Chip8CPU = struct {
     /// The interpreter increments the stack pointer, then puts the current
     /// PC on the top of the stack. The PC is then set to nnn.
     /// (0x2nnn)
-    pub fn call(self: *Chip8CPU, nnn: u16) void {
+    fn call(self: *Chip8CPU, nnn: u16) void {
         self.sp += 1;
         self.stack[self.sp] = self.pc;
         self.pc = nnn;
@@ -121,7 +121,7 @@ pub const Chip8CPU = struct {
     /// The interpreter compares register Vx to kk, and if they are equal,
     /// increments the program counter by 2.
     /// (0x3xkk)
-    pub fn se_vx_byte(self: *Chip8CPU, x: u8, kk: u8) void {
+    fn se_vx_byte(self: *Chip8CPU, x: u8, kk: u8) void {
         self.pc += if (self.regv[x] == kk) 4 else 2;
     }
 
@@ -129,7 +129,7 @@ pub const Chip8CPU = struct {
     /// The interpreter compares register Vx to kk, and if they are not equal,
     /// increments the program counter by 2.
     /// (0x4xkk)
-    pub fn sne_vx_byte(self: *Chip8CPU, x: u8, kk: u8) void {
+    fn sne_vx_byte(self: *Chip8CPU, x: u8, kk: u8) void {
         self.pc += if (self.regv[x] != kk) 4 else 2;
     }
 
@@ -137,14 +137,14 @@ pub const Chip8CPU = struct {
     /// The interpreter compares register Vx to register Vy, and if they are
     /// equal, increments the program counter by 2.
     /// (0x5xy0)
-    pub fn se_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
+    fn se_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
         self.pc += if (self.regv[x] != self.regv[y]) 4 else 2;
     }
 
     /// Set Vx = kk.
     /// The interpreter puts the value kk into register Vx.
     /// (0x6xkk)
-    pub fn ld_vx_byte(self: *Chip8CPU, x: u8, kk: u8) void {
+    fn ld_vx_byte(self: *Chip8CPU, x: u8, kk: u8) void {
         self.regv[x] = kk;
         self.pc += 2;
     }
@@ -153,7 +153,7 @@ pub const Chip8CPU = struct {
     /// Adds the value kk to the value of register Vx, then stores the
     /// result in Vx.
     /// (0x7xkk)
-    pub fn add_vx_byte(self: *Chip8CPU, x: u8, kk: u8) void {
+    fn add_vx_byte(self: *Chip8CPU, x: u8, kk: u8) void {
         self.regv[x] += kk;
         self.pc += 2;
     }
@@ -161,7 +161,7 @@ pub const Chip8CPU = struct {
     /// Set Vx = Vy.
     /// Stores the value of register Vy in register Vx.
     /// (0x8xy0)
-    pub fn ld_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
+    fn ld_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
         self.regv[x] = self.regv[y];
         self.pc += 2;
     }
@@ -170,7 +170,7 @@ pub const Chip8CPU = struct {
     /// Performs a bitwise OR on the values of Vx and Vy, then stores
     /// the result in Vx.
     /// (0x8xy1)
-    pub fn or_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
+    fn or_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
         self.regv[x] |= self.regv[y];
         self.pc += 2;
     }
@@ -179,7 +179,7 @@ pub const Chip8CPU = struct {
     /// Performs a bitwise AND on the values of Vx and Vy, then stores
     /// the result in Vx.
     /// (0x8xy2)
-    pub fn and_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
+    fn and_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
         self.regv[x] &= self.regv[y];
         self.pc += 2;
     }
@@ -188,7 +188,7 @@ pub const Chip8CPU = struct {
     /// Performs a bitwise exclusive OR on the values of Vx and Vy, then
     /// stores the result in Vx.
     /// (0x8xy3)
-    pub fn xor_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
+    fn xor_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
         self.regv[x] ^= self.regv[y];
         self.pc += 2;
     }
@@ -198,7 +198,7 @@ pub const Chip8CPU = struct {
     /// than 8 bits (i.e., > 255,) VF is set to 1, otherwise 0. Only the
     /// lowest 8 bits of the result are kept, and stored in Vx.
     /// (0x8xy4)
-    pub fn add_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
+    fn add_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
         const overflow = @addWithOverflow(self.regv[x], self.regv[y]);
         self.regv[x] = overflow[0];
         self.regv[0xf] = overflow[1];
@@ -209,7 +209,7 @@ pub const Chip8CPU = struct {
     /// If Vx > Vy, then VF is set to 1, otherwise 0. Then Vy is subtracted
     /// from Vx, and the results stored in Vx.
     /// (0x8xy5)
-    pub fn sub_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
+    fn sub_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
         const overflow = @subWithOverflow(self.regv[x], self.regv[y]);
         self.regv[x] = overflow[0];
         self.regv[0xf] = if (overflow[1] == 1) 0 else 1;
@@ -220,7 +220,7 @@ pub const Chip8CPU = struct {
     /// If the least-significant bit of Vx is 1, then VF is set to 1,
     /// otherwise 0. Then Vx is divided by 2.
     /// (0x8xy6)
-    pub fn shr_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
+    fn shr_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
         self.regv[0xf] = ((0x1 & self.regv[x]));
         self.regv[x] = @shrExact(self.regv[x], 0x1);
         self.pc += 2;
@@ -231,7 +231,7 @@ pub const Chip8CPU = struct {
     /// If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted
     /// from Vy, and the results stored in Vx.
     /// (0x8xy7)
-    pub fn subn_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
+    fn subn_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
         const overflow = @subWithOverflow(self.regv[y], self.regv[x]);
         self.regv[x] = overflow[0];
         self.regv[0xf] = if (overflow[1] == 1) 0 else 1;
@@ -242,7 +242,7 @@ pub const Chip8CPU = struct {
     /// If the most-significant bit of Vx is 1, then VF is set to 1,
     /// otherwise to 0. Then Vx is multiplied by 2.
     /// (0x8xye)
-    pub fn shl_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
+    fn shl_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
         self.regv[0xf] = ((0x80 & self.regv[x]));
         self.regv[x] = @shlExact(self.regv[x], 0x1);
         self.pc += 2;
@@ -253,14 +253,14 @@ pub const Chip8CPU = struct {
     /// The values of Vx and Vy are compared, and if they are not equal,
     /// the program counter is increased by 2.
     /// (0x9xy0)
-    pub fn sne_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
+    fn sne_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
         self.pc += if (self.regv[x] != self.regv[y]) 4 else 2;
     }
 
     /// Set I = nnn.
     /// The value of register I is set to nnn.
     /// (0xannn)
-    pub fn ld_i_addr(self: *Chip8CPU, nnn: u16) void {
+    fn ld_i_addr(self: *Chip8CPU, nnn: u16) void {
         self.i = nnn;
         self.pc += 2;
     }
@@ -268,7 +268,7 @@ pub const Chip8CPU = struct {
     /// Jump to location nnn + V0.
     /// The program counter is set to nnn plus the value of V0.
     /// (0xbnnn)
-    pub fn jp_v0_addr(self: *Chip8CPU, nnn: u16) void {
+    fn jp_v0_addr(self: *Chip8CPU, nnn: u16) void {
         self.pc = self.regv[0x0] + nnn;
     }
 
@@ -276,7 +276,7 @@ pub const Chip8CPU = struct {
     /// The interpreter generates a random number from 0 to 255, which is
     /// then ANDed with the value kk. The results are stored in Vx.
     /// (0xcxkk)
-    pub fn rnd_vx_byte(self: *Chip8CPU, x: u8, kk: u8) void {
+    fn rnd_vx_byte(self: *Chip8CPU, x: u8, kk: u8) void {
         var prng = std.Random.DefaultPrng.init(undefined);
         const rand = prng.random().int(u8);
         self.regv[x] = rand & kk;
@@ -290,7 +290,7 @@ pub const Chip8CPU = struct {
     /// coordinates (Vx, Vy). Sprites are XORed onto the existing screen. If
     /// this causes any pixels to be erased, VF is set to 1, otherwise 0.
     /// (0xdxyn)
-    pub fn drw_vx_vy_nibble(self: *Chip8CPU, x: u8, y: u8, n: u8) void {
+    fn drw_vx_vy_nibble(self: *Chip8CPU, x: u8, y: u8, n: u8) void {
         const cx: u8 = self.regv[x];
         const cy: u8 = self.regv[y];
         self.regv[0xf] = 0;
@@ -326,7 +326,7 @@ pub const Chip8CPU = struct {
     /// Checks the keyboard, and if the key corresponding to the value of Vx
     /// is currently in the down position, PC is increased by 2.
     /// (0xex9e)
-    pub fn skp_vx(self: *Chip8CPU, x: u8) void {
+    fn skp_vx(self: *Chip8CPU, x: u8) void {
         self.pc += if (self.keypad[self.regv[x]] == 1) 4 else 2;
     }
 
@@ -334,14 +334,14 @@ pub const Chip8CPU = struct {
     ///  Checks the keyboard, and if the key corresponding to the value of Vx
     /// is currently in the up position, PC is increased by 2.
     /// (0xexa1)
-    pub fn skpn_vx(self: *Chip8CPU, x: u8) void {
+    fn skpn_vx(self: *Chip8CPU, x: u8) void {
         self.pc += if (self.keypad[self.regv[x]] == 0) 4 else 2;
     }
 
     /// Set Vx = delay timer value.
     /// The value of DT is placed into Vx.
     /// (0xfx07)
-    pub fn ld_vx_dt(self: *Chip8CPU, x: u8) void {
+    fn ld_vx_dt(self: *Chip8CPU, x: u8) void {
         self.regv[x] = self.dt;
         self.pc += 2;
     }
@@ -350,7 +350,7 @@ pub const Chip8CPU = struct {
     /// All execution stops until a key is pressed, then the value of that
     /// key is stored in Vx.
     /// (0xfx0a)
-    pub fn ld_vx_k(self: *Chip8CPU, x: u8) void {
+    fn ld_vx_k(self: *Chip8CPU, x: u8) void {
         var keypressed: bool = false;
 
         for (0x0..0xf) |key| {
@@ -367,7 +367,7 @@ pub const Chip8CPU = struct {
     /// Set delay timer = Vx.
     /// DT is set equal to the value of Vx.
     /// (0xfx15)
-    pub fn ld_dt_vx(self: *Chip8CPU, x: u8) void {
+    fn ld_dt_vx(self: *Chip8CPU, x: u8) void {
         self.dt = self.regv[x];
         self.pc += 2;
     }
@@ -375,7 +375,7 @@ pub const Chip8CPU = struct {
     /// Set sound timer = Vx.
     /// ST is set equal to the value of Vx.
     /// (0xfx18)
-    pub fn ld_st_vx(self: *Chip8CPU, x: u8) void {
+    fn ld_st_vx(self: *Chip8CPU, x: u8) void {
         self.st = self.regv[x];
         self.pc += 2;
     }
@@ -383,7 +383,7 @@ pub const Chip8CPU = struct {
     /// Set I = I + Vx.
     /// The values of I and Vx are added, and the results are stored in I.
     /// (0xfx1e)
-    pub fn add_i_vx(self: *Chip8CPU, x: u8) void {
+    fn add_i_vx(self: *Chip8CPU, x: u8) void {
         self.i = self.i + self.regv[x];
         self.pc += 2;
     }
@@ -392,7 +392,7 @@ pub const Chip8CPU = struct {
     /// The value of I is set to the location for the hexadecimal sprite
     /// corresponding to the value of Vx.
     /// (0xfx29)
-    pub fn ld_f_vx(self: *Chip8CPU, x: u8) void {
+    fn ld_f_vx(self: *Chip8CPU, x: u8) void {
         self.i = 5 * self.regv[x];
         self.pc += 2;
     }
@@ -402,7 +402,7 @@ pub const Chip8CPU = struct {
     /// digit in memory at location in I, the tens digit at location I+1, and
     /// the ones digit at location I+2.
     /// (0xfx33)
-    pub fn ld_b_vx(self: *Chip8CPU, x: u8) void {
+    fn ld_b_vx(self: *Chip8CPU, x: u8) void {
         const val: u8 = self.regv[x];
         self.ram[self.i] = val / 100;
         self.ram[self.i + 1] = (val / 10) % 10;
@@ -414,7 +414,7 @@ pub const Chip8CPU = struct {
     /// The interpreter copies the values of registers V0 through Vx into
     /// memory, starting at the address in I.
     /// (0xfx55)
-    pub fn ld_i_vx(self: *Chip8CPU, x: u8) void {
+    fn ld_i_vx(self: *Chip8CPU, x: u8) void {
         for (0x0..x) |addr|
             self.ram[self.i + addr] = self.regv[addr];
         self.pc += 2;
@@ -424,7 +424,7 @@ pub const Chip8CPU = struct {
     /// The interpreter reads values from memory starting at location I
     /// into registers V0 through Vx.
     /// (0xfx65)
-    pub fn ld_vx_i(self: *Chip8CPU, x: u8) void {
+    fn ld_vx_i(self: *Chip8CPU, x: u8) void {
         for (0x0..x) |reg|
             self.regv[reg] = self.ram[self.i + reg];
         self.pc += 2;

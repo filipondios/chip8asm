@@ -5,8 +5,8 @@ const chip8cpu = @import("chip8cpu.zig");
 const Chip8CPU = chip8cpu.Chip8CPU;
 
 pub fn main() !void {
+    // Create a new instance
     var cpu: Chip8CPU = Chip8CPU.init();
-    cpu.cls();
 
     // Load the ROM file to memory
     cpu.loadToROM("/home/tux/chip8/src/stars.bin") catch |err| {
