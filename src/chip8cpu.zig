@@ -391,17 +391,13 @@ pub const Chip8CPU = struct {
     /// key is stored in Vx.
     /// (0xfx0a)
     fn ld_vx_k(self: *Chip8CPU, x: u8) void {
-        var keypressed: bool = false;
-
         for (0x0..0xf) |key| {
             if (self.keypad[key] == 1) {
-                keypressed = true;
                 self.regv[x] = @intCast(key);
+                self.pc += 2;
                 break;
             }
         }
-        if (keypressed)
-            self.pc += 2;
     }
 
     /// Set delay timer = Vx.
