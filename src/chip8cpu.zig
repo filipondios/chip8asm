@@ -1,7 +1,9 @@
 const std = @import("std");
+const raylib = @import("raylib");
+const keyboardKey = raylib.KeyboardKey;
 
 pub const Chip8CPU = struct {
-    display: [2048]u8,
+    display: [64][32]u8,
     ram: [4096]u8,
     stack: [16]u16,
     regv: [16]u8,
@@ -31,6 +33,26 @@ pub const Chip8CPU = struct {
         0xf0, 0x80, 0xf0, 0x80, 0x80, // F
     };
 
+    // Keypad mappings to QWERTY keyboard
+    const keys = [16]keyboardKey{
+        keyboardKey.key_x,
+        keyboardKey.key_kp_1,
+        keyboardKey.key_kp_2,
+        keyboardKey.key_kp_3,
+        keyboardKey.key_q,
+        keyboardKey.key_w,
+        keyboardKey.key_e,
+        keyboardKey.key_a,
+        keyboardKey.key_s,
+        keyboardKey.key_d,
+        keyboardKey.key_z,
+        keyboardKey.key_c,
+        keyboardKey.key_kp_4,
+        keyboardKey.key_r,
+        keyboardKey.key_f,
+        keyboardKey.key_v,
+    };
+
     /// Since the standard library handles all serious errors with its own
     /// error types, we only need to create the error type to detect when the
     /// ROM file is too big.
@@ -54,14 +76,14 @@ pub const Chip8CPU = struct {
         };
 
         // Initialize all the buffers
-        cpu.display = std.mem.zeroes([2048]u8);
+        cpu.display = std.mem.zeroes([64][32]u8);
         cpu.ram = std.mem.zeroes([4096]u8);
         cpu.stack = std.mem.zeroes([16]u16);
         cpu.regv = std.mem.zeroes([16]u8);
         cpu.keypad = std.mem.zeroes([16]u8);
 
         // Load sprites to memory (0 - 80)
-        std.mem.copyForwards(u8, &cpu.display, &sprites);
+        std.mem.copyForwards(u8, &cpu.ram, &sprites);
         return cpu;
     }
 
@@ -86,8 +108,10 @@ pub const Chip8CPU = struct {
     /// Clears the 64x32 display buffer
     /// (0x00e0)
     fn cls(self: *Chip8CPU) void {
-        for (&self.display) |*pixel|
-            pixel.* = 0;
+        for (0..63) |x| {
+            for (0..31) |y|
+                self.display[x][y] = 0;
+        }
         self.pc += 2;
     }
 
@@ -138,7 +162,7 @@ pub const Chip8CPU = struct {
     /// equal, increments the program counter by 2.
     /// (0x5xy0)
     fn se_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
-        self.pc += if (self.regv[x] != self.regv[y]) 4 else 2;
+        self.pc += if (self.regv[x] == self.regv[y]) 4 else 2;
     }
 
     /// Set Vx = kk.
@@ -221,7 +245,7 @@ pub const Chip8CPU = struct {
     /// otherwise 0. Then Vx is divided by 2.
     /// (0x8xy6)
     fn shr_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
-        self.regv[0xf] = ((0x1 & self.regv[x]));
+        self.regv[0xf] = (0x1 & self.regv[x]);
         self.regv[x] = @shrExact(self.regv[x], 0x1);
         self.pc += 2;
         _ = y;
@@ -294,32 +318,48 @@ pub const Chip8CPU = struct {
         const cx: u8 = self.regv[x];
         const cy: u8 = self.regv[y];
         self.regv[0xf] = 0;
-        self.pc += 2;
+        defer self.pc += 2;
 
-        var i: u8 = 0;
-        var j: u8 = 0;
-        var mask_bit: u8 = 0;
-        var index: u16 = 0;
+        for (0..n - 1) |yLine| {
+            const pixel = self.ram[self.i + yLine];
 
-        while (i <= n - 1) : (i += 1) {
-            const sprite: u8 = self.ram[self.i + i];
+            for (0..7) |xLine| {
+                var shr_x: u8 = 0x80;
+                shr_x >>= @truncate(xLine);
 
-            while (j <= 7) : (j += 1) {
-                mask_bit = 0x80;
-                mask_bit >>= @truncate(j);
+                if ((pixel & shr_x) != 0) {
+                    const x_wrap = cx + xLine;
+                    const y_wrap = cy + yLine;
 
-                if ((sprite & mask_bit) != 0) {
-                    index = ((cx + j) + ((cy + i) * 64));
-                    index %= 2048;
-
-                    // Detect colision at display (used pixel)
-                    if (self.display[index] == 1)
-                        self.regv[0xf] = 1;
-                    // Draw the pixel
-                    self.display[index] ^= 1;
+                    if ((x_wrap < 64) and (y_wrap < 32)) {
+                        if (self.display[x_wrap][y_wrap] == 1)
+                            self.regv[0xf] = 1;
+                        self.display[x_wrap][y_wrap] = 1;
+                    }
                 }
             }
         }
+
+        //while (i <= n - 1) : (i += 1) {
+        //    const sprite: u8 = self.ram[self.i + i];
+
+        //    j = 0;
+        //   while (j <= 7) : (j += 1) {
+        //     mask_bit = 0x80;
+        //   mask_bit >>= @truncate(j);
+
+        //                if ((sprite & mask_bit) != 0) {
+        //                  index = ((cx + j) + ((cy + i) * 64));
+        //                index %= 2048;
+
+        // Detect colision at display (used pixel)
+        //                    if (self.display[index] == 1)
+        //                      self.regv[0xf] = 1;
+        // Draw the pixel
+        //                self.display[index] ^= 1;
+        //          }
+        //    }
+        //}
     }
 
     /// Skip next instruction if key with the value of Vx is pressed.
@@ -428,6 +468,13 @@ pub const Chip8CPU = struct {
         for (0x0..x) |reg|
             self.regv[reg] = self.ram[self.i + reg];
         self.pc += 2;
+    }
+
+    pub fn get_pressed_keys(self: *Chip8CPU) void {
+        for (0x0..0xf) |key| {
+            self.keypad[key] =
+                if (raylib.isKeyPressed(keys[key])) 1 else 0;
+        }
     }
 
     /// Fetches the next instruction (the one stored in RAM and being pointed
