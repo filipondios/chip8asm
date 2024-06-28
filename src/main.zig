@@ -9,7 +9,7 @@ pub fn main() !void {
     var cpu: Chip8CPU = Chip8CPU.init();
 
     // Load the ROM file to memory
-    cpu.loadToROM("/home/tux/chip8/src/program.c8") catch |err| {
+    cpu.loadToROM("/home/tux/chip8/src/ibm.ch8") catch |err| {
         std.debug.print("ROM could not be loaded: {}", .{err});
         return;
     };
@@ -31,14 +31,15 @@ pub fn main() !void {
         defer raylib.endDrawing();
         raylib.clearBackground(raylib.Color.black);
 
-        var x: i32 = 0;
-        var y: i32 = 0;
-
-        while (x < 64) : (x += 1) {
-            y = 0;
-            while (y < 32) : (y += 1) {
-                if (cpu.display[@intCast(x)][@intCast(y)] != 0)
-                    raylib.drawRectangle(x * 30, y * 30, 30, 30, raylib.Color.white);
+        for (0..2048) |it| {
+            if (cpu.display[it] != 0) {
+                raylib.drawRectangle(
+                    @intCast(it % 64 * 30),
+                    @intCast((it / 64) * 30),
+                    30,
+                    30,
+                    raylib.Color.white,
+                );
             }
         }
     }

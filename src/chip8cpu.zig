@@ -3,7 +3,7 @@ const raylib = @import("raylib");
 const keyboardKey = raylib.KeyboardKey;
 
 pub const Chip8CPU = struct {
-    display: [64][32]u8,
+    display: [2048]u8,
     ram: [4096]u8,
     stack: [16]u16,
     regv: [16]u8,
@@ -76,7 +76,7 @@ pub const Chip8CPU = struct {
         };
 
         // Initialize all the buffers
-        cpu.display = std.mem.zeroes([64][32]u8);
+        cpu.display = std.mem.zeroes([2048]u8);
         cpu.ram = std.mem.zeroes([4096]u8);
         cpu.stack = std.mem.zeroes([16]u16);
         cpu.regv = std.mem.zeroes([16]u8);
@@ -108,10 +108,8 @@ pub const Chip8CPU = struct {
     /// Clears the 64x32 display buffer
     /// (0x00e0)
     fn cls(self: *Chip8CPU) void {
-        for (0..63) |x| {
-            for (0..31) |y|
-                self.display[x][y] = 0;
-        }
+        for (&self.display) |*pixel|
+            pixel.* = 0;
         self.pc += 2;
     }
 
@@ -121,7 +119,7 @@ pub const Chip8CPU = struct {
     /// (0x00ee)
     fn ret(self: *Chip8CPU) void {
         self.pc = self.stack[self.sp] + 2;
-        self.sp = self.sp - 1;
+        self.sp -= 1;
     }
 
     /// Jump to location nnn
@@ -246,7 +244,7 @@ pub const Chip8CPU = struct {
     /// (0x8xy6)
     fn shr_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
         self.regv[0xf] = (0x1 & self.regv[x]);
-        self.regv[x] = @shrExact(self.regv[x], 0x1);
+        self.regv[x] = @truncate(self.regv[x] >> 0x1);
         self.pc += 2;
         _ = y;
     }
@@ -268,7 +266,7 @@ pub const Chip8CPU = struct {
     /// (0x8xye)
     fn shl_vx_vy(self: *Chip8CPU, x: u8, y: u8) void {
         self.regv[0xf] = ((0x80 & self.regv[x]));
-        self.regv[x] = @shlExact(self.regv[x], 0x1);
+        self.regv[x] = @truncate(self.regv[x] << 0x1);
         self.pc += 2;
         _ = y;
     }
@@ -314,52 +312,30 @@ pub const Chip8CPU = struct {
     /// coordinates (Vx, Vy). Sprites are XORed onto the existing screen. If
     /// this causes any pixels to be erased, VF is set to 1, otherwise 0.
     /// (0xdxyn)
-    fn drw_vx_vy_nibble(self: *Chip8CPU, x: u8, y: u8, n: u8) void {
-        const cx: u8 = self.regv[x];
-        const cy: u8 = self.regv[y];
+    fn drw_vx_vy_nibble(self: *Chip8CPU, vx: u8, vy: u8, n: u8) void {
+        const x: u8 = self.regv[vx];
+        const y: u8 = self.regv[vy];
         self.regv[0xf] = 0;
         defer self.pc += 2;
 
-        for (0..n - 1) |yLine| {
-            const pixel = self.ram[self.i + yLine];
+        for (0..n - 1) |it| {
+            const sprite: u8 = self.ram[self.i + it];
 
-            for (0..7) |xLine| {
-                var shr_x: u8 = 0x80;
-                shr_x >>= @truncate(xLine);
+            for (0..7) |jt| {
+                var bit: u8 = 0x80;
+                bit >>= @truncate(jt);
 
-                if ((pixel & shr_x) != 0) {
-                    const x_wrap = cx + xLine;
-                    const y_wrap = cy + yLine;
+                if ((bit & sprite) != 0x0) {
+                    const x_wrap = (x + jt) % 64;
+                    const y_wrap = (y + it) % 32;
+                    const pos = x_wrap + (y_wrap * 64);
 
-                    if ((x_wrap < 64) and (y_wrap < 32)) {
-                        if (self.display[x_wrap][y_wrap] == 1)
-                            self.regv[0xf] = 1;
-                        self.display[x_wrap][y_wrap] = 1;
-                    }
+                    if (self.display[pos] == 1)
+                        self.regv[0xf] = 1;
+                    self.display[pos] ^= 1;
                 }
             }
         }
-
-        //while (i <= n - 1) : (i += 1) {
-        //    const sprite: u8 = self.ram[self.i + i];
-
-        //    j = 0;
-        //   while (j <= 7) : (j += 1) {
-        //     mask_bit = 0x80;
-        //   mask_bit >>= @truncate(j);
-
-        //                if ((sprite & mask_bit) != 0) {
-        //                  index = ((cx + j) + ((cy + i) * 64));
-        //                index %= 2048;
-
-        // Detect colision at display (used pixel)
-        //                    if (self.display[index] == 1)
-        //                      self.regv[0xf] = 1;
-        // Draw the pixel
-        //                self.display[index] ^= 1;
-        //          }
-        //    }
-        //}
     }
 
     /// Skip next instruction if key with the value of Vx is pressed.
