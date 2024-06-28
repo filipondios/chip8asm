@@ -1,7 +1,7 @@
-.zig-cache/
-zig-out/
-/release/
-/debug/
-/build/
-/build-*/
-/docgen_tmp/
+./zig-impl/.zig-cache/
+./zig-impl/zig-out/
+./zig-impl/release/
+./zig-impl/debug/
+./zig-impl/build/
+./zig-impl/build-*/
+./zig-impl/docgen_tmp/
