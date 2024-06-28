@@ -5,12 +5,12 @@
 int main(void) {
 
   cpu_init();
-  if(cpu_load_rom("./ibm.ch8") == -1) {
+  if(cpu_load_rom("./roms/UFO") == -1) {
     printf("Could not read ROM\n");
     return -1;
   }
 
-  InitWindow(64 * 30, 32 * 30, "raylib [core] example - basic window");
+  InitWindow(64 * 30, 32 * 30, "Emulator");
   SetTargetFPS(60);
 
   while (!WindowShouldClose()) {
