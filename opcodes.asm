@@ -1,7 +1,4 @@
 section .data
-  ;; PROG_START     eq 0x200
-  ;; PROG_START_ETI eq 0x600
-  
   ;; Processor features
   display: times 2048 db 0 ;; Display Buffer
   ram:     times 4096 db 0 ;; Chip8 Memory
@@ -14,28 +11,12 @@ section .data
   sptr: db 0               ;; Stack pointer (sp is a keyword)
 
 section .text
-global _start
-_start: 
-  mov rax, 60
-  mov rdi, 0
-  syscall
-
-
 ;; CLS
 ;; ---
 ;; Clears the screen
 ;; buffer
 global _cls
 _cls:
-  mov rax, display
-  mov bx, 2048
-  mov cl, 0
-loop:
-  mov [rax], cl
-  inc rax
-  dec bx
-  cmp bx, 0
-  jg loop
   ret
  
 ;; RET
@@ -44,9 +25,6 @@ loop:
 ;; subroutine
 global _ret
 _ret:
-  mov ax, [sptr]
-  mov [pc], ax
-  dec byte [sptr]
   ret
 
 ;; JP
@@ -54,7 +32,4 @@ _ret:
 ;; 0xnnn (rdi)
 global _jp
 _jp:
-  mov [pc], rdi
   ret
-
-
