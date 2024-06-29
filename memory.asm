@@ -1,35 +1,44 @@
+global cpu_display
+global cpu_ram 
+global cpu_stack
+global cpu_v
+global cpu_keypad 
+global cpu_i
+global cpu_dt
+global cpu_st
+global cpu_pc
+global cpu_sp
+global cpu_draw
+global sprites
+
 section .data
   ;; Processor features
-  display: times 2048 db 0 ;; Display Buffer
-  ram:     times 4096 db 0 ;; Chip8 Memory
-  stack:   times 16   dw 0 ;; Processor stack
-  vx:      times 16   db 0 ;; Vx Registers (x[0..f])
-  i:  dw 0                 ;; I register
-  dt: db 0                 ;; Delay Timer
-  st: db 0                 ;; Sound Timer
-  pc: dw 0                 ;; Program counter
-  sptr: db 0               ;; Stack pointer (sp is a keyword)
+  cpu_display: times 2048 db 0 ;; Display Buffer
+  cpu_ram:     times 4096 db 0 ;; Chip8 Memory
+  cpu_stack:   times 16   dw 0 ;; Processor stack
+  cpu_v:       times 16   db 0 ;; Vx Registers (x[0..F])
+  cpu_keypad:  times 16   db 0 ;; Keypad keys 
+  cpu_i:    dw 0               ;; I register
+  cpu_dt:   db 0               ;; Delay Timer
+  cpu_st:   db 0               ;; Sound Timer
+  cpu_pc:   dw 0               ;; Program counter
+  cpu_sp:   db 0               ;; Stack pointer (sp is a keyword)
+  cpu_draw: db 0
 
-section .text
-;; CLS
-;; ---
-;; Clears the screen
-;; buffer
-global _cls
-_cls:
-  ret
- 
-;; RET
-;; ---
-;; Returns from a
-;; subroutine
-global _ret
-_ret:
-  ret
-
-;; JP
-;; Jump to location
-;; 0xnnn (rdi)
-global _jp
-_jp:
-  ret
+  ;; Graphics display characters (0x0 - 0xF)
+  sprites:  db 0xF0, 0x90, 0x90, 0x90, 0xF0 ;; 0
+            db 0x20, 0x60, 0x20, 0x20, 0x70 ;; 1
+            db 0xF0, 0x10, 0xF0, 0x80, 0xF0 ;; 2
+            db 0xF0, 0x10, 0xF0, 0x10, 0xF0 ;; 3
+            db 0x90, 0x90, 0xF0, 0x10, 0x10 ;; 4
+            db 0xF0, 0x80, 0xF0, 0x10, 0xF0 ;; 5
+            db 0xF0, 0x80, 0xF0, 0x90, 0xF0 ;; 6
+            db 0xF0, 0x10, 0x20, 0x40, 0x40 ;; 7
+            db 0xF0, 0x90, 0xF0, 0x90, 0xF0 ;; 8
+            db 0xF0, 0x90, 0xF0, 0x10, 0xF0 ;; 9
+            db 0xF0, 0x90, 0xF0, 0x90, 0x90 ;; A
+            db 0xE0, 0x90, 0xE0, 0x90, 0xE0 ;; B
+            db 0xF0, 0x80, 0x80, 0x80, 0xF0 ;; C
+            db 0xE0, 0x90, 0x90, 0x90, 0xE0 ;; D
+            db 0xF0, 0x80, 0xF0, 0x80, 0xF0 ;; E
+            db 0xF0, 0x80, 0xF0, 0x80, 0x80 ;; F

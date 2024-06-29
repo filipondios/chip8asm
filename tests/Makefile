@@ -1,5 +1,4 @@
 all: readfile readfileParam
-	# Print some help
 	@echo ""
 	@echo "You can select one specific target:"
 	@echo "readfile:      Reads 2048 bytes from 'testfile'"

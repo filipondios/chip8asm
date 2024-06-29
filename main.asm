@@ -5,7 +5,7 @@ extern BeginDrawing
 extern ClearBackground
 extern EndDrawing
 extern CloseWindow
-%include "opcodes.asm"
+; %include "opcodes.asm"
 
 section .data
   win_title  db "Window Title"

@@ -1,0 +1,212 @@
+%include "memory.asm"
+extern memset
+
+section .text
+;; 00E0 - CLS
+global _cls
+_cls:
+  ;; memset(display, 0)
+  mov rdi, cpu_display
+  mov rsi, 0
+  mov rdx, 2048
+  call memset
+  ;; draw = true
+  ;; pc += 2
+  mov [cpu_draw], 1
+  mov ax, [cpu_pc]
+  add ax, 2
+  mov [cpu_pc], al
+  ret
+
+
+;; 00EE - RET
+;; Return from a subroutine.
+global _ret
+_ret:
+  ;; sp --
+  mov rax, [cpu_sp]
+  dec rax
+  mov [cpu_sp], byte al
+  ;; pc = stack[sp]
+  mov rdi, cpu_stack
+  add rdi, rax
+  mov rdx, [rdi]
+  ;; pc += 2
+  add rdx, 2
+  mov [cpu_pc], word dx
+  ret
+
+
+;; 1nnn - JP addr
+;; Jump to location nnn.
+global _jp_addr
+_jp_addr:
+  mov [cpu_pc], word di
+  ret
+
+;; 2nnn - CALL addr
+;; Call subroutine at nnn.
+;; rdi = nnn
+global _call_addr
+_call_addr:
+  ;; stack[sp] = pc
+  mov rsi, cpu_stack
+  mov rdx, [cpu_sp]
+  add rsi, rdx
+  mov rax, [cpu_pc]
+  mov [rsi], word ax
+  ;; pc = nnn
+  mov [cpu_pc], rdi
+  ret
+
+
+;; 3xkk - SE Vx, byte
+;; Skip next instruction if Vx = kk.
+;; rdi = x
+;; rsi = byte
+global _se_vx_byte
+_se_vx_byte:
+  mov rdx, cpu_v
+  add rdx, rdi
+  mov rdx, [rdx]
+  mov rax, [cpu_pc]
+  cmp rdx, rsi
+  jne end
+  add rax, 2
+end:
+  add rax, 2
+  mov, [cpu_pc], word ax
+  ret
+
+
+;; 4xkk - SNE Vx, byte
+;; Skip next instruction if Vx != kk.
+;; rdi = x
+;; rsi = byte
+global _sne_vx_byte
+_sne_vx_byte:
+  mov rdx, cpu_v
+  add rdx, rdi
+  mov rdx, [rdx]
+  mov rax, [cpu_pc]
+  cmp rdx, rsi
+  je end
+  add rax, 2
+end:
+  add rax, 2
+  mov [cpu_pc], word ax
+  ret
+
+
+;; 5xy0 - SE Vx, Vy
+;; Skip next instruction if Vx = Vy.
+;; rdi = x
+;; rsi = y
+global _se_vx_xy
+_se_vx_vy:
+  mov rdx, cpu_v
+  mov rax, rdx
+  add rdx, rdi
+  mov rdx, [rdx]
+  add rax, rsi
+  mov rax, [rax]
+  mov rbx, [cpu_pc]
+  cmp rdx, rax
+  jne end
+  add, rdx, 2
+end:
+  add rdx, 2
+  mov [cpu_pc], word dx
+  ret
+
+
+;; 6xkk - LD Vx, byte
+;; Set Vx = kk.
+;; rdi = x
+;; rsi = byte
+global _ld_vx_byte
+_ld_vx_byte:
+  mov rdx, cpu_v
+  add rdx, rdi
+  mov [rdx], rsi
+  ret
+
+
+;; 7xkk - ADD Vx, byte
+;; Set Vx = Vx + kk.
+
+
+;; 8xy0 - LD Vx, Vy
+;; Set Vx = Vy.
+
+;; 8xy1 - OR Vx, Vy
+;; Set Vx = Vx OR Vy.
+
+;; 8xy2 - AND Vx, Vy
+;; Set Vx = Vx AND Vy.
+
+;; 8xy3 - XOR Vx, Vy
+;; Set Vx = Vx XOR Vy.
+
+;; 8xy4 - ADD Vx, Vy
+;; Set Vx = Vx + Vy, set VF = carry.
+
+;; 8xy5 - SUB Vx, Vy
+;; Set Vx = Vx - Vy, set VF = NOT borrow.
+
+;; 8xy6 - SHR Vx {, Vy}
+;; Set Vx = Vx SHR 1.
+
+;; 8xy7 - SUBN Vx, Vy
+;; Set Vx = Vy - Vx, set VF = NOT borrow.
+
+;; 8xyE - SHL Vx {, Vy}
+;; Set Vx = Vx SHL 1.
+
+;; 9xy0 - SNE Vx, Vy
+;; Skip next instruction if Vx != Vy.
+
+;; Annn - LD I, addr
+;; Set I = nnn.
+
+;; Bnnn - JP V0, addr
+;; Jump to location nnn + V0.
+
+;; Cxkk - RND Vx, byte
+;; Set Vx = random byte AND kk.
+
+;; Dxyn - DRW Vx, Vy, nibble
+;; Display n-byte sprite
+
+;; Ex9E - SKP Vx
+;; Skip next instruction if key Vx is pressed.
+
+;; ExA1 - SKNP Vx
+;; Opposite to Ex9E
+
+;; Fx07 - LD Vx, DT
+;; Set Vx = delay timer value.
+
+;; Fx0A - LD Vx, K
+;; Wait for a key press, store key in Vx.
+
+;; Fx15 - LD DT, Vx
+;; Set delay timer = Vx.
+
+;; Fx18 - LD ST, Vx
+;; Set sound timer = Vx.
+
+;; Fx1E - ADD I, Vx
+;; Set I = I + Vx.
+
+;; Fx29 - LD F, Vx
+;; Set I = location of sprite for digit Vx.
+
+;; Fx33 - LD B, Vx
+;; Store BCD representation of Vx at I, I+1, and I+2.
+
+;; Fx55 - LD [I], Vx
+;; Store registers V0 through Vx at I.
+
+;; Fx65 - LD Vx, [I]
+;; Read registers V0 through Vx from I.
