@@ -7,6 +7,14 @@ extern cpu_draw
 extern cpu_stack
 
 section .text
+
+;; Increase pc
+%macro INC_PC 0
+  mov r8, [cpu_pc]
+  add r8, 2
+  mov [cpu_pc], word r8w
+%endmacro
+
 ;; 00E0 - CLS
 global _cls
 _cls:
@@ -15,12 +23,8 @@ _cls:
   mov rsi, 0
   mov rdx, 2048
   call memset
-  ;; draw = true
-  ;; pc += 2
   mov [cpu_draw], 1
-  mov ax, [cpu_pc]
-  add ax, 2
-  mov [cpu_pc], al
+  INC_PC
   ret
 
 
@@ -30,7 +34,7 @@ global _ret
 _ret:
   ;; sp --
   mov rax, [cpu_sp]
-  dec rax
+  sub rax, 2
   mov [cpu_sp], byte al
   ;; pc = stack[sp]
   mov rdi, cpu_stack
@@ -80,7 +84,7 @@ _se_vx_byte:
   add rax, 2
 end:
   add rax, 2
-  mov, [cpu_pc], word ax
+  mov [cpu_pc], word ax
   ret
 
 
@@ -95,7 +99,7 @@ _sne_vx_byte:
   mov rdx, [rdx]
   mov rax, [cpu_pc]
   cmp rdx, rsi
-  je end
+  je  end
   add rax, 2
 end:
   add rax, 2
@@ -118,7 +122,7 @@ _se_vx_vy:
   mov rbx, [cpu_pc]
   cmp rdx, rax
   jne end
-  add, rdx, 2
+  add rdx, 2
 end:
   add rdx, 2
   mov [cpu_pc], word dx
@@ -134,6 +138,7 @@ _ld_vx_byte:
   mov rdx, cpu_v
   add rdx, rdi
   mov [rdx], byte sil
+  INC_PC
   ret
 
 
@@ -148,6 +153,7 @@ _add_vx_byte:
   mov rax, [rdx]
   add rax, rsi
   mov [rdx], byte al
+  INC_PC
   ret
 
 
@@ -163,6 +169,7 @@ _ld_vx_vy:
   add rax, rsi
   mov rax, [rax]
   mov rdx, byte al
+  INC_PC
   ret
 
 
@@ -180,6 +187,7 @@ _or_vx_xy:
   mov rax, [rax]
   or  bl, al
   mov [rdx], byte bl
+  INC_PC
   ret
 
 
@@ -197,6 +205,7 @@ _and_vx_xy:
   mov rax, [rax]
   and bl, al
   mov [rdx], byte bl 
+  INC_PC
   ret
 
 
@@ -214,6 +223,7 @@ _xor_vx_xy:
   mov rax, [rax]
   xor bl, al
   mov [rdx], byte bl  
+  INC_PC
   ret
 
 ;; 8xy4 - ADD Vx, Vy
@@ -238,6 +248,7 @@ ncarry:
   mov [rcx], 0
 end: 
   mov [rdx], byte bl  
+  INC_PC
   ret
 
 
@@ -263,6 +274,7 @@ ncarry:
   mov [rcx], 1
 end: 
   mov [rdx], byte bl  
+  INC_PC
   ret
 
 
@@ -284,6 +296,7 @@ ncarry:
   mov [rax], 0
 end:
   mov [rsi], byte dl
+  INC_PC
   ret
 
 
@@ -309,6 +322,7 @@ ncarry:
   mov [rcx], 1
 end: 
   mov [rdx], byte al  
+  INC_PC
   ret
 
 
@@ -330,6 +344,7 @@ ncarry:
   mov [rax], 0
 end:
   mov [rsi], byte dl
+  INC_PC
   ret
 
 
