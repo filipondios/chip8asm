@@ -11,8 +11,8 @@ section .text
 
 ;; Increase pc
 %macro INC_PC 0
-  mov r8, [cpu_pc]
-  add r8, 2
+  movzx r8, word [cpu_pc]
+  add r8w, 2
   mov [cpu_pc], word r8w
 %endmacro
 
@@ -80,10 +80,10 @@ _se_vx_byte:
   movzx rdx, word [cpu_pc]
   cmp al, sil
   jne end_3xkk 
-  add dl, 2
+  add dx, 2
 end_3xkk:
-  add dl, 2
-  mov [cpu_pc], dl
+  add dx, 2
+  mov [cpu_pc], dx
   ret
 
 
@@ -99,10 +99,10 @@ _sne_vx_byte:
   movzx rdx, word [cpu_pc]
   cmp al, sil
   je end_4xkk 
-  add dl, 2
+  add dx, 2
 end_4xkk:
-  add dl, 2
-  mov [cpu_pc], dl
+  add dx, 2
+  mov [cpu_pc], dx
   ret
 
 
@@ -110,21 +110,21 @@ end_4xkk:
 ;; Skip next instruction if Vx = Vy.
 ;; rdi = x
 ;; rsi = y
-global _se_vx_xy
+global _se_vx_vy
 _se_vx_vy:
   mov rdx, cpu_v
-  mov rax, rdx
+  mov rax, cpu_v
   add rdx, rdi
-  mov rdx, [rdx]
   add rax, rsi
-  mov rax, [rax]
-  mov rbx, [cpu_pc]
-  cmp rdx, rax
+  movzx rdx, byte [rdx]
+  movzx rax, byte [rax]
+  movzx rbx, word [cpu_pc]
+  cmp rdx, rax 
   jne end_5xy0
-  add rdx, 2
+  add bx, 2
 end_5xy0:
-  add rdx, 2
-  mov [cpu_pc], word dx
+  add bx, 2
+  mov [cpu_pc], bx
   ret
 
 
@@ -149,8 +149,8 @@ global _add_vx_byte;
 _add_vx_byte:
   mov rdx, cpu_v
   add rdx, rdi
-  mov rax, [rdx]
-  add rax, rsi
+  mov al, byte [rdx]
+  add al, sil
   mov [rdx], byte al
   INC_PC
   ret
@@ -163,10 +163,10 @@ _add_vx_byte:
 global _ld_vx_vy:
 _ld_vx_vy:
   mov rdx, cpu_v
-  mov rax, rdx
+  mov rax, cpu_v
   add rdx, rdi
   add rax, rsi
-  mov rax, [rax]
+  movzx rax, byte [rax]
   mov [rdx], byte al
   INC_PC
   ret
@@ -179,13 +179,17 @@ _ld_vx_vy:
 global _or_vx_xy
 _or_vx_xy:
   mov rdx, cpu_v
-  mov rax, rdx
+  mov rax, cpu_v
   add rdx, rdi
   add rax, rsi
-  mov rbx, [rdx]
-  mov rax, [rax]
-  or  bl, al
-  mov [rdx], byte bl
+  mov rbx, rdx
+  movzx rdx, byte [rdx]
+  movzx rax, byte [rax]
+  or  al, dl
+  mov [rbx], byte al
+  mov rdx, cpu_v
+  add rdx, 0xF
+  mov [rdx], byte 0
   INC_PC
   ret
 
@@ -197,13 +201,17 @@ _or_vx_xy:
 global _and_vx_xy
 _and_vx_xy:
   mov rdx, cpu_v
-  mov rax, rdx
+  mov rax, cpu_v
   add rdx, rdi
   add rax, rsi
-  mov rbx, [rdx]
-  mov rax, [rax]
-  and bl, al
-  mov [rdx], byte bl 
+  mov rbx, rdx
+  movzx rdx, byte [rdx]
+  movzx rax, byte [rax]
+  and al, dl
+  mov [rbx], byte al
+  mov rdx, cpu_v
+  add rdx, 0xF
+  mov [rdx], byte 0
   INC_PC
   ret
 
@@ -215,15 +223,20 @@ _and_vx_xy:
 global _xor_vx_xy
 _xor_vx_xy:
   mov rdx, cpu_v
-  mov rax, rdx
+  mov rax, cpu_v
   add rdx, rdi
   add rax, rsi
-  mov rbx, [rdx]
-  mov rax, [rax]
-  xor bl, al
-  mov [rdx], byte bl  
+  mov rbx, rdx
+  movzx rdx, byte [rdx]
+  movzx rax, byte [rax]
+  xor al, dl
+  mov [rbx], byte al
+  mov rdx, cpu_v
+  add rdx, 0xF
+  mov [rdx], byte 0
   INC_PC
   ret
+
 
 ;; 8xy4 - ADD Vx, Vy
 ;; Set Vx = Vx + Vy, set VF = carry.
@@ -232,21 +245,22 @@ _xor_vx_xy:
 global _add_vx_vy
 _add_vx_vy:
   mov rdx, cpu_v
-  mov rax, rdx
+  mov rax, cpu_v
   add rdx, rdi
   add rax, rsi
-  mov rbx, [rdx]
-  mov rax, [rax]
+  mov rbx, rdx
+  movzx rdx, byte [rdx]
+  movzx rax, byte [rax]
   mov rcx, cpu_v
   add rcx, 0xF
-  add bl, al
-  jnc carry_8xy4
+  add dl, al
+  jnc ncarry_8xy4
   mov [rcx], byte 1
   jmp end_8xy4
-carry_8xy4:
+ncarry_8xy4:
   mov [rcx], byte 0
 end_8xy4: 
-  mov [rdx], byte bl  
+  mov [rbx], byte dl  
   INC_PC
   ret
 
@@ -258,21 +272,22 @@ end_8xy4:
 global _sub_vx_vy
 _sub_vx_vy:
   mov rdx, cpu_v
-  mov rax, rdx
+  mov rax, cpu_v
   add rdx, rdi
   add rax, rsi
-  mov rbx, [rdx]
-  mov rax, [rax]
+  mov rbx, rdx
+  movzx rdx, byte [rdx]
+  movzx rax, byte [rax]
   mov rcx, cpu_v
   add rcx, 0xF
-  sub bl, al
+  sub dl, al
   jnc ncarry_8xy5
   mov [rcx], byte 0
   jmp end_8xy5
 ncarry_8xy5:
   mov [rcx], byte 1
 end_8xy5: 
-  mov [rdx], byte bl  
+  mov [rbx], byte dl  
   INC_PC
   ret
 
@@ -283,18 +298,19 @@ end_8xy5:
 global _shr_vx
 _shr_vx:
   mov rsi, cpu_v
-  mov rax, rsi
-  add rax, 0xF
   add rsi, rdi
-  mov rdx, [rsi]
-  shr dl, 1
-  jnc ncarry_8xy6
-  mov [rax], byte 1  
+  mov rax, rsi
+  mov rbx, cpu_v
+  add rbx, 0xF
+  movzx rsi, byte [rsi]
+  shr sil, 1
+  jnc noverflow_8xy6
+  mov [rbx], byte 1  
   jmp end_8xy6
-ncarry_8xy6:
-  mov [rax], byte 0
+noverflow_8xy6:
+  mov [rbx], byte 0
 end_8xy6:
-  mov [rsi], byte dl
+  mov [rax], byte sil
   INC_PC
   ret
 
@@ -306,21 +322,22 @@ end_8xy6:
 global _subn_vx_vy
 _subn_vx_vy:
   mov rdx, cpu_v
-  mov rax, rdx
+  mov rax, cpu_v
   add rdx, rdi
   add rax, rsi
-  mov rbx, [rdx]
-  mov rax, [rax]
+  mov rbx, rdx
+  movzx rdx, byte [rdx]
+  movzx rax, byte [rax]
   mov rcx, cpu_v
   add rcx, 0xF
-  sub al, bl
+  sub al, dl
   jnc ncarry_8xy7
   mov [rcx], byte 0
   jmp end_8xy7
 ncarry_8xy7:
   mov [rcx], byte 1
 end_8xy7: 
-  mov [rdx], byte al  
+  mov [rbx], byte al  
   INC_PC
   ret
 
@@ -331,18 +348,19 @@ end_8xy7:
 global _shl_vx
 _shl_vx:
   mov rsi, cpu_v
-  mov rax, rsi
-  add rax, 0xF
   add rsi, rdi
-  mov rdx, [rsi]
-  shl dl, 1
-  jnc ncarry_8xye
-  mov [rax], byte 1  
-  jmp end_8xye
-ncarry_8xye:
-  mov [rax], byte 0
-end_8xye:
-  mov [rsi], byte dl
+  mov rax, rsi
+  mov rbx, cpu_v
+  add rbx, 0xF
+  movzx rsi, byte [rsi]
+  shl sil, 1
+  jnc noverflow_9xy6
+  mov [rbx], byte 1  
+  jmp end_9xy6
+noverflow_9xy6:
+  mov [rbx], byte 0
+end_9xy6:
+  mov [rax], byte sil
   INC_PC
   ret
 
