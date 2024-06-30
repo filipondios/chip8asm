@@ -19,7 +19,6 @@ section .text
 ;; 00E0 - CLS
 global _cls
 _cls:
-  ;; memset(display, 0)
   mov rdi, cpu_display
   mov rsi, 0
   mov rdx, 2048
@@ -34,15 +33,12 @@ _cls:
 ;; Return from a subroutine.
 global _ret
 _ret:
-  ;; sp --
   mov rax, [cpu_sp]
-  sub rax, 2
+  sub rax, 1
   mov [cpu_sp], byte al
-  ;; pc = stack[sp]
   mov rdi, cpu_stack
   add rdi, rax
   mov rdx, [rdi]
-  ;; pc += 2
   add rdx, 2
   mov [cpu_pc], word dx
   ret
@@ -55,19 +51,20 @@ _jp_addr:
   mov [cpu_pc], word di
   ret
 
+
 ;; 2nnn - CALL addr
 ;; Call subroutine at nnn.
 ;; rdi = nnn
 global _call_addr
 _call_addr:
-  ;; stack[sp] = pc
+  movzx rdx, byte [cpu_sp]
   mov rsi, cpu_stack
-  mov rdx, [cpu_sp]
   add rsi, rdx
-  mov rax, [cpu_pc]
-  mov [rsi], word ax
-  ;; pc = nnn
-  mov [cpu_pc], rdi
+  mov ax, [cpu_pc]
+  mov [rsi], ax
+  add rdx, 2
+  mov [cpu_sp], dl
+  mov [cpu_pc], di
   ret
 
 
@@ -79,14 +76,14 @@ global _se_vx_byte
 _se_vx_byte:
   mov rdx, cpu_v
   add rdx, rdi
-  mov rdx, [rdx]
-  mov rax, [cpu_pc]
-  cmp rdx, rsi
-  jne end_3xkk
-  add rax, 2
+  movzx rax, byte [rdx]
+  movzx rdx, word [cpu_pc]
+  cmp al, sil
+  jne end_3xkk 
+  add dl, 2
 end_3xkk:
-  add rax, 2
-  mov [cpu_pc], word ax
+  add dl, 2
+  mov [cpu_pc], dl
   ret
 
 
@@ -98,14 +95,14 @@ global _sne_vx_byte
 _sne_vx_byte:
   mov rdx, cpu_v
   add rdx, rdi
-  mov rdx, [rdx]
-  mov rax, [cpu_pc]
-  cmp rdx, rsi
-  je  end_4xkk
-  add rax, 2
+  movzx rax, byte [rdx]
+  movzx rdx, word [cpu_pc]
+  cmp al, sil
+  je end_4xkk 
+  add dl, 2
 end_4xkk:
-  add rax, 2
-  mov [cpu_pc], word ax
+  add dl, 2
+  mov [cpu_pc], dl
   ret
 
 
