@@ -1,3 +1,4 @@
+section .data
 extern memset
 extern cpu_v
 extern cpu_display
@@ -23,7 +24,8 @@ _cls:
   mov rsi, 0
   mov rdx, 2048
   call memset
-  mov [cpu_draw], 1
+  mov rdi, cpu_draw
+  mov [rdi], byte 1
   INC_PC
   ret
 
@@ -80,9 +82,9 @@ _se_vx_byte:
   mov rdx, [rdx]
   mov rax, [cpu_pc]
   cmp rdx, rsi
-  jne end
+  jne end_3xkk
   add rax, 2
-end:
+end_3xkk:
   add rax, 2
   mov [cpu_pc], word ax
   ret
@@ -99,9 +101,9 @@ _sne_vx_byte:
   mov rdx, [rdx]
   mov rax, [cpu_pc]
   cmp rdx, rsi
-  je  end
+  je  end_4xkk
   add rax, 2
-end:
+end_4xkk:
   add rax, 2
   mov [cpu_pc], word ax
   ret
@@ -121,9 +123,9 @@ _se_vx_vy:
   mov rax, [rax]
   mov rbx, [cpu_pc]
   cmp rdx, rax
-  jne end
+  jne end_5xy0
   add rdx, 2
-end:
+end_5xy0:
   add rdx, 2
   mov [cpu_pc], word dx
   ret
@@ -168,7 +170,7 @@ _ld_vx_vy:
   add rdx, rdi
   add rax, rsi
   mov rax, [rax]
-  mov rdx, byte al
+  mov [rdx], byte al
   INC_PC
   ret
 
@@ -241,12 +243,12 @@ _add_vx_vy:
   mov rcx, cpu_v
   add rcx, 0xF
   add bl, al
-  jnc ncarry
-  mov [rcx], 1
-  jmp end
-ncarry:
-  mov [rcx], 0
-end: 
+  jnc carry_8xy4
+  mov [rcx], byte 1
+  jmp end_8xy4
+carry_8xy4:
+  mov [rcx], byte 0
+end_8xy4: 
   mov [rdx], byte bl  
   INC_PC
   ret
@@ -267,12 +269,12 @@ _sub_vx_vy:
   mov rcx, cpu_v
   add rcx, 0xF
   sub bl, al
-  jnc ncarry
-  mov [rcx], 0
-  jmp end
-ncarry:
-  mov [rcx], 1
-end: 
+  jnc ncarry_8xy5
+  mov [rcx], byte 0
+  jmp end_8xy5
+ncarry_8xy5:
+  mov [rcx], byte 1
+end_8xy5: 
   mov [rdx], byte bl  
   INC_PC
   ret
@@ -289,12 +291,12 @@ _shr_vx:
   add rsi, rdi
   mov rdx, [rsi]
   shr dl, 1
-  jnc ncarry
-  mov [rax], 1  
-  jmp end
-ncarry:
-  mov [rax], 0
-end:
+  jnc ncarry_8xy6
+  mov [rax], byte 1  
+  jmp end_8xy6
+ncarry_8xy6:
+  mov [rax], byte 0
+end_8xy6:
   mov [rsi], byte dl
   INC_PC
   ret
@@ -315,12 +317,12 @@ _subn_vx_vy:
   mov rcx, cpu_v
   add rcx, 0xF
   sub al, bl
-  jnc ncarry
-  mov [rcx], 0
-  jmp end
-ncarry:
-  mov [rcx], 1
-end: 
+  jnc ncarry_8xy7
+  mov [rcx], byte 0
+  jmp end_8xy7
+ncarry_8xy7:
+  mov [rcx], byte 1
+end_8xy7: 
   mov [rdx], byte al  
   INC_PC
   ret
@@ -337,12 +339,12 @@ _shl_vx:
   add rsi, rdi
   mov rdx, [rsi]
   shl dl, 1
-  jnc ncarry
-  mov [rax], 1  
-  jmp end
-ncarry:
-  mov [rax], 0
-end:
+  jnc ncarry_8xye
+  mov [rax], byte 1  
+  jmp end_8xye
+ncarry_8xye:
+  mov [rax], byte 0
+end_8xye:
   mov [rsi], byte dl
   INC_PC
   ret
