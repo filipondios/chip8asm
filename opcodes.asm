@@ -1,11 +1,16 @@
 section .data
 extern memset
-extern cpu_v
 extern cpu_display
-extern cpu_sp
-extern cpu_pc
-extern cpu_draw
+extern cpu_ram
 extern cpu_stack
+extern cpu_v
+extern cpu_keypad
+extern cpu_i
+extern cpu_dt
+extern cpu_st
+extern cpu_pc
+extern cpu_sp
+extern cpu_draw
 
 section .text
 
@@ -367,48 +372,204 @@ end_9xy6:
 
 ;; 9xy0 - SNE Vx, Vy
 ;; Skip next instruction if Vx != Vy.
+;; rdi = x
+;; rsi = y
+global _sne_vx_vy
+_sne_vx_vy:
+  mov rdx, cpu_v
+  mov rax, cpu_v
+  add rdx, rdi
+  add rax, rsi
+  movzx rdx, byte [rdx]
+  movzx rax, byte [rax]
+  movzx rbx, word [cpu_pc]
+  cmp rdx, rax 
+  je end_9xy0
+  add bx, 2
+end_9xy0:
+  add bx, 2
+  mov [cpu_pc], bx
+  ret
+
 
 ;; Annn - LD I, addr
 ;; Set I = nnn.
+;; rdi = addr
+global _ld_i_addr
+_ld_i_addr:
+  mov [cpu_i], word di
+  INC_PC
+  ret
+
 
 ;; Bnnn - JP V0, addr
 ;; Jump to location nnn + V0.
+;; rdi = addr
+global _jp_v0_addr
+_jp_v0_addr:
+  mov rsi, cpu_v
+  movzx rsi, byte [rsi]
+  add si, di
+  mov [cpu_pc], word si
+  ret
+
 
 ;; Cxkk - RND Vx, byte
 ;; Set Vx = random byte AND kk.
+;; rdi = x
+;; rsi = y
+global _rnd_vx_byte
+_rnd_vx_byte:
+  mov rdx, cpu_v
+  add rdx, rdi
+  rdrand ax
+  and al, sil
+  mov [rdx], byte al
+  INC_PC
+  ret
 
+
+;; TODO ;; TODO !!
 ;; Dxyn - DRW Vx, Vy, nibble
 ;; Display n-byte sprite
 
+
 ;; Ex9E - SKP Vx
 ;; Skip next instruction if key Vx is pressed.
+;; rdi = x
+global _skp_vx:
+_skp_vx:
+  mov rsi, cpu_v
+  add rsi, rdi
+  movzx rsi, byte [rsi] ;; vx
+  mov rax, cpu_keypad
+  add rax, rsi
+  movzx rax, byte [rax]
+  movzx rdx, word [cpu_pc]
+  cmp rax, 1
+  jne end_ex9e
+  add dx, 2
+end_ex9e:
+  add dx, 2
+  mov [cpu_pc], word dx
+  ret
+
 
 ;; ExA1 - SKNP Vx
-;; Opposite to Ex9E
+;; Skip next instruction if key Vx is not pressed.
+;; rdi = x
+global _sknp_vx:
+_sknp_vx:
+  mov rsi, cpu_v
+  add rsi, rdi
+  movzx rsi, byte [rsi]
+  mov rax, cpu_keypad
+  add rax, rsi
+  movzx rax, byte [rax]
+  movzx rdx, word [cpu_pc]
+  cmp rax, 1
+  je end_exa1
+  add dx, 2
+end_exa1:
+  add dx, 2
+  mov [cpu_pc], word dx
+  ret
+
 
 ;; Fx07 - LD Vx, DT
 ;; Set Vx = delay timer value.
+;; rdi = x
+global _ld_vx_dt
+_ld_vx_dt:
+  mov rsi, cpu_v
+  add rsi, rdi
+  movzx rdx, byte [cpu_dt]
+  mov [rsi], dl
+  INC_PC
+  ret
 
+
+;; TODO ;; TODO
 ;; Fx0A - LD Vx, K
 ;; Wait for a key press, store key in Vx.
 
+
 ;; Fx15 - LD DT, Vx
 ;; Set delay timer = Vx.
+;; rdi = x
+global _ld_dt_vx
+_ld_dt_vx:
+  mov rsi, cpu_v
+  add rsi, rdi
+  movzx rdx, byte [rsi]
+  mov [cpu_dt], dl
+  INC_PC
+  ret
+
 
 ;; Fx18 - LD ST, Vx
 ;; Set sound timer = Vx.
+;; rdi = x
+global _ld_st_vx
+_ld_st_vx:
+  mov rsi, cpu_v
+  add rsi, rdi
+  movzx rdx, byte [rsi]
+  mov [cpu_st], dl
+  INC_PC
+  ret
+
 
 ;; Fx1E - ADD I, Vx
 ;; Set I = I + Vx.
+;; rdi = x
+global _add_i_vx
+_add_i_vx:
+  mov rsi, cpu_v
+  add rsi, rdi
+  movzx rsi, byte [rsi]
+  movzx rdx, word [cpu_i]
+  mov rax, cpu_v
+  add rax, 0xF 
+  add dx, si
+  cmp dx, 0xFFF
+  jg  outaddr_fx1e
+  mov [rax], byte 0
+  jmp end_fx1e 
+outaddr_fx1e:
+  mov [rax], byte 1
+end_fx1e:
+  mov [cpu_i], word dx
+  INC_PC
+  ret
+
 
 ;; Fx29 - LD F, Vx
 ;; Set I = location of sprite for digit Vx.
+;; rdi = x
+global _ld_f_vx
+_ld_f_vx:
+  mov rsi, cpu_v
+  add rsi, rdi
+  movzx rsi, byte [rsi]
+  mov rax, rsi
+  shl sil, 2
+  add sil, al
+  mov [cpu_i], word si
+  INC_PC
+  ret
 
+
+;; TODO
 ;; Fx33 - LD B, Vx
 ;; Store BCD representation of Vx at I, I+1, and I+2.
 
+
+;; TODO
 ;; Fx55 - LD [I], Vx
 ;; Store registers V0 through Vx at I.
 
+
+;; TODO
 ;; Fx65 - LD Vx, [I]
 ;; Read registers V0 through Vx from I.

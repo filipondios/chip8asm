@@ -1,8 +1,6 @@
 NOW:
-- upgrade tests/Makefile
-- do all the test for the implementes opcodes
+- end all opcodes implementations
 
 FAR:
-- end all opcodes implementations
 - implement interface operations (load, init, ...)
 - implement main loop
