@@ -432,6 +432,9 @@ _rnd_vx_byte:
 ;; TODO ;; TODO !!
 ;; Dxyn - DRW Vx, Vy, nibble
 ;; Display n-byte sprite
+global _drw_vx_vy_nibble
+_drw_vx_vy_nibble:
+  ret
 
 
 ;; Ex9E - SKP Vx
@@ -489,9 +492,28 @@ _ld_vx_dt:
   ret
 
 
-;; TODO ;; TODO
 ;; Fx0A - LD Vx, K
 ;; Wait for a key press, store key in Vx.
+;; rdi = x
+global _ld_vx_k
+_ld_vx_k:
+  mov rsi, cpu_keypad
+  xor rax, rax
+loop_fx0a:
+  movzx rdx, byte [rsi + rax]
+  cmp dl, 0
+  jne keyp_fx0a
+  inc al
+  cmp al, 0x10
+  jl loop_fx0a
+  jmp end_fx0a
+keyp_fx0a:
+  mov rsi, cpu_v
+  add rsi, rdi
+  mov [rsi], al
+  INC_PC
+end_fx0a:
+  ret
 
 
 ;; Fx15 - LD DT, Vx
@@ -563,13 +585,22 @@ _ld_f_vx:
 ;; TODO
 ;; Fx33 - LD B, Vx
 ;; Store BCD representation of Vx at I, I+1, and I+2.
+global _ld_b_vx
+_ld_b_vx:
+  ret
 
 
 ;; TODO
 ;; Fx55 - LD [I], Vx
 ;; Store registers V0 through Vx at I.
+global _ld_i_vx
+_ld_i_vx:
+  ret
 
 
 ;; TODO
 ;; Fx65 - LD Vx, [I]
 ;; Read registers V0 through Vx from I.
+global _ld_vx_i
+_ld_vx_i:
+  ret
