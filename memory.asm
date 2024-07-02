@@ -13,17 +13,17 @@ global sprites
 
 section .data
   ;; Processor features
-  cpu_display: times 2048 db 0 ;; Display Buffer
-  cpu_ram:     times 4096 db 0 ;; Chip8 Memory
-  cpu_stack:   times 16   dw 0 ;; Processor stack
-  cpu_v:       times 16   db 0 ;; Vx Registers (x[0..F])
-  cpu_keypad:  times 16   db 0 ;; Keypad keys 
-  cpu_i:    dw 0               ;; I register
-  cpu_dt:   db 0               ;; Delay Timer
-  cpu_st:   db 0               ;; Sound Timer
-  cpu_pc:   dw 0               ;; Program counter
-  cpu_sp:   db 0               ;; Stack pointer (sp is a keyword)
-  cpu_draw: db 0
+  cpu_display: times 2048 db 0x0 ;; Display Buffer
+  cpu_ram:     times 4096 db 0x0 ;; Chip8 Memory
+  cpu_stack:   times 16   dw 0x0 ;; Processor stack
+  cpu_v:       times 16   db 0x0 ;; Vx Registers (x[0..F])
+  cpu_keypad:  times 16   db 0x0 ;; Keypad keys 
+  cpu_i:    dw 0x0               ;; I register
+  cpu_dt:   db 0x0               ;; Delay Timer
+  cpu_st:   db 0x0               ;; Sound Timer
+  cpu_pc:   dw 0x200             ;; Program counter
+  cpu_sp:   db 0x0               ;; Stack pointer (sp is a keyword)
+  cpu_draw: db 0x0
 
   ;; Graphics display characters (0x0 - 0xF)
   sprites:  db 0xF0, 0x90, 0x90, 0x90, 0xF0 ;; 0

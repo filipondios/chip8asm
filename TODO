@@ -1,8 +1,8 @@
 NOW:
 ----
 -> Implement interface operations
-    - load: Load a ROM file to the chi8 ram
-    - init: Initialize all registers
+    -| load: Load a ROM file to the chi8 ram 
+    -| init: Initialize all registers
     - get_keys: Get all pressed keys
     - update_timers: Update delay and sound timers
     - exec_cicle: Execute the next CPU cicle
