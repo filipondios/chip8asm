@@ -1,6 +1,14 @@
 NOW:
-- end all opcodes implementations
+----
+-> Implement interface operations
+    - load: Load a ROM file to the chi8 ram
+    - init: Initialize all registers
+    - get_keys: Get all pressed keys
+    - update_timers: Update delay and sound timers
+    - exec_cicle: Execute the next CPU cicle
+    - draw_display: Draw the display buffer in the window
 
 FAR:
-- implement interface operations (load, init, ...)
-- implement main loop
+----
+-> Implement the main loop
+  - Gather all interface operations together
