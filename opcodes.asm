@@ -582,11 +582,36 @@ _ld_f_vx:
   ret
 
 
-;; TODO
 ;; Fx33 - LD B, Vx
 ;; Store BCD representation of Vx at I, I+1, and I+2.
+;; rdi = x
 global _ld_b_vx
 _ld_b_vx:
+  ;; Hundreds
+  movzx rsi, byte [cpu_v + rdi]
+  mov rax, rsi  
+  mov rcx, 100  
+  div cl       
+  movzx rbx, word [cpu_i]
+  mov [cpu_ram + rbx], al
+  ;; Tens
+  mov rax, rsi
+  mov rcx, 10
+  div cl
+  div cl
+  add rbx, 1
+  mov [cpu_ram + rbx], ah  
+  ;; Units
+  mov rax, rsi
+  mov rcx, 100
+  div cl
+  shr rax, 8
+  and rax, 0xFF 
+  mov rcx, 10
+  div cl
+  add rbx, 1
+  mov [cpu_ram + rbx], ah
+  INC_PC
   ret
 
 
