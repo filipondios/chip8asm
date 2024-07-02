@@ -38,31 +38,28 @@ main:
   mov rdi, [rsi + 8]
   call _load
 
-  ;mov rdi, win_title   ; primer argumento para printf
-  ;mov rax, 0     ; llamar a printf
-  ;call printf
+  ;; Create window
+  mov edi, [win_width]
+  mov esi, [win_height]
+  mov rdx, win_title
+  call InitWindow
 
-  ;mov edi, [win_width]
-  ;mov esi, [win_height]
-  ;mov rdx, win_title
-  ;call InitWindow
+  mov edi, [win_fps]
+  call SetTargetFPS
 
-  ;mov edi, [win_fps]
-  ;call SetTargetFPS
+loop_begin:
+  call WindowShouldClose
+  cmp eax, 0
+  jne loop_end
 
-;loop_begin:
-  ;call WindowShouldClose
-  ;cmp eax, 0
-  ;jne loop_end
+  call BeginDrawing
+  mov edi, [color_black]
+  call ClearBackground
+  call EndDrawing
+  jmp loop_begin
 
-  ;call BeginDrawing
-  ;mov edi, [color_black]
-  ;call ClearBackground
-  ;call EndDrawing
-  ;jmp loop_begin
-
-;loop_end:
-  ;call CloseWindow
+loop_end:
+  call CloseWindow
   add rsp, 16
   mov rsp, rbp
   pop rbp
