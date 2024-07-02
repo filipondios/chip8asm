@@ -429,7 +429,6 @@ _rnd_vx_byte:
   ret
 
 
-;; TODO ;; TODO !!
 ;; Dxyn - DRW Vx, Vy, nibble
 ;; Display n-byte sprite
 ;; rdi = x
@@ -442,26 +441,20 @@ _drw_vx_vy_nibble:
   mov [cpu_v + 0xF], byte 0     ; v[0xf] = 0 
   xor rcx, rcx                  ; rcx = it = 0
   movzx r8, word [cpu_i]        ; r8 = i 
-
 loop_dxyn_byte:
   add r8, rcx                   ; r8 = (i + it)
   movzx r9, byte [cpu_ram + r8] ; r9 = ram[i+it] = sprite
   xor r10, r10                  ; r10 = jt = 0
-
 loop_dxyn_bit:
   mov r11, 0x80                 ; r11 = bit = 10000000 (bin)
   push rcx                      ; save rcx (used by shr)
   mov cl, r10b                  ; cl (rcx lower 8 bits) = r10b (re10 lower 8 bits)
   shr r11, cl                   ; r11 = bit >> jt
   pop rcx                       ; recover rcx
-
   and r11, r9                   ; r11 = bit&sprite
   cmp r11, 0                    ; bit&sprite == 0 ?
   je  loop_dxyn_bit_end
   
-  ; Dividend 	Divisor 	Quotient 	Remainder
-  ;  	AX   	    r/m8 	     AL 	     AH 	 
-
   push rax                       ; save rax (used by div)
   add rax, r10                   ; rax = x + jt
   mov r12, 64                    
@@ -483,7 +476,6 @@ loop_dxyn_bit:
   cmp r13, 0                     ; cpu_display[pox] == 0? 
   je loop_dxyn_bit_end
   mov [cpu_v + 0xF], byte 1
-  
 loop_dxyn_bit_end:
   xor r13, 1
   mov [cpu_display + r12], r13   ; cpu_display[pos]^=1
@@ -677,17 +669,41 @@ _ld_b_vx:
   ret
 
 
-;; TODO
 ;; Fx55 - LD [I], Vx
 ;; Store registers V0 through Vx at I.
+;; rdi = x
 global _ld_i_vx
 _ld_i_vx:
+  movzx rsi, word [cpu_i]
+  mov rdx, 0 
+loop_fx55:
+  movzx rax, byte [cpu_v + rdx]
+  mov [cpu_ram + rsi + rdx], byte al
+  inc dl
+  cmp dl, dil
+  jle loop_fx55
+  add si, di
+  add si, 1
+  mov [cpu_i], word si  
+  INC_PC
   ret
 
 
-;; TODO
 ;; Fx65 - LD Vx, [I]
 ;; Read registers V0 through Vx from I.
+;; rdi = x
 global _ld_vx_i
 _ld_vx_i:
+  movzx rsi, word [cpu_i]
+  mov rdx, 0
+loop_fx65:
+  movzx rax, byte [cpu_ram + rsi + rdx]
+  mov [cpu_v + rdx], byte al
+  inc dl
+  cmp dl, dil
+  jle loop_fx65
+  add si, di
+  add si, 1
+  mov [cpu_i], word si
+  INC_PC
   ret
