@@ -598,6 +598,7 @@ _ld_b_vx:
   mov rax, rsi
   mov rcx, 10
   div cl
+  and rax, 0xFF
   div cl
   add rbx, 1
   mov [cpu_ram + rbx], ah  
