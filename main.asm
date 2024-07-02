@@ -1,4 +1,3 @@
-
 extern InitWindow
 extern SetTargetFPS
 extern WindowShouldClose
@@ -16,7 +15,7 @@ section .data
   STD_OUT    equ 1
 
   ;; System variables
-  win_title  db "Window Title"
+  win_title  db "Window Title %s"
   win_width  dd 800
   win_height dd 800
   win_fps    dd 10
@@ -30,35 +29,40 @@ main:
   mov rbp, rsp
   sub rsp, 16
   
-  ;; Check args num
+  ;; Args count
   cmp rdi, 2
   jne arg_error
 
   ;; Load ROM
-  mov rdi, rsi
+  xor rdi, rdi
+  mov rdi, [rsi + 8]
   call _load
 
-  mov edi, [win_width]
-  mov esi, [win_height]
-  mov rdx, win_title
-  call InitWindow
+  ;mov rdi, win_title   ; primer argumento para printf
+  ;mov rax, 0     ; llamar a printf
+  ;call printf
 
-  mov edi, [win_fps]
-  call SetTargetFPS
+  ;mov edi, [win_width]
+  ;mov esi, [win_height]
+  ;mov rdx, win_title
+  ;call InitWindow
 
-loop_begin:
-  call WindowShouldClose
-  cmp eax, 0
-  jne loop_end
+  ;mov edi, [win_fps]
+  ;call SetTargetFPS
 
-  call BeginDrawing
-  mov edi, [color_black]
-  call ClearBackground
-  call EndDrawing
-  jmp loop_begin
+;loop_begin:
+  ;call WindowShouldClose
+  ;cmp eax, 0
+  ;jne loop_end
 
-loop_end:
-  call CloseWindow
+  ;call BeginDrawing
+  ;mov edi, [color_black]
+  ;call ClearBackground
+  ;call EndDrawing
+  ;jmp loop_begin
+
+;loop_end:
+  ;call CloseWindow
   add rsp, 16
   mov rsp, rbp
   pop rbp

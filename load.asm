@@ -1,5 +1,6 @@
 section .data
   extern cpu_ram
+  extern printf
 
   ;; 'Macros'
   SYS_READ   equ 0
@@ -10,7 +11,7 @@ section .data
   SYS_EXIT   equ 60
   STD_OUT    equ 1
   S_IRUSR    equ 400
-  READ_BYTES equ 0x600
+  READ_BYTES equ 0xE00
   PROG_BEGIN equ 0x200 
   
   ;; Stat structure
