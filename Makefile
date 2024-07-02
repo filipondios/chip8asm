@@ -3,7 +3,7 @@ CC=gcc
 ASMFLAGS=-f elf64
 CFLAGS=-no-pie -m64
 CXTRAFLAGS=-lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -lc
-SRCS=main.asm load.asm memory.asm
+SRCS=main.asm load.asm memory.asm get_keys.asm
 OBJS = $(SRCS:.asm=.o)
 TARGET=exec
 

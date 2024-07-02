@@ -7,6 +7,7 @@ extern EndDrawing
 extern CloseWindow
 
 extern _load
+extern _get_keys
 
 section .data
   ;; 'Macros'
@@ -55,6 +56,7 @@ loop_begin:
   call BeginDrawing
   mov edi, [color_black]
   call ClearBackground
+  call _get_keys
   call EndDrawing
   jmp loop_begin
 
