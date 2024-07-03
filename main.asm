@@ -7,7 +7,10 @@ extern EndDrawing
 extern CloseWindow
 
 extern _load
+extern _exec_cicle
 extern _get_keys
+extern _draw_display
+extern print_mem
 
 section .data
   ;; 'Macros'
@@ -19,7 +22,7 @@ section .data
   win_title  db "Window Title %s"
   win_width  dd 800
   win_height dd 800
-  win_fps    dd 10
+  win_fps    dd 60
   color_black	db 0,0,0,255
   arg_error_msg db "Error: Incorrect number of arguments",10,0
 
@@ -39,6 +42,9 @@ main:
   mov rdi, [rsi + 8]
   call _load
 
+  ; call print_mem
+  ; call _exec_cicle
+
   ;; Create window
   mov edi, [win_width]
   mov esi, [win_height]
@@ -53,10 +59,13 @@ loop_begin:
   cmp eax, 0
   jne loop_end
 
+  call _exec_cicle
+  call _get_keys
+
   call BeginDrawing
   mov edi, [color_black]
   call ClearBackground
-  call _get_keys
+  call _draw_display
   call EndDrawing
   jmp loop_begin
 

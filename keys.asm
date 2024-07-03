@@ -14,7 +14,9 @@ section .data
 section .text
 global _get_keys
 _get_keys:
-  ;mov rsi, cpu_keypad
+  push rdx
+  push rdi
+  ;; begin
   xor rdx, rdx
 loop_get_keys:
   movzx rdi, word [keys + rdx]
@@ -23,4 +25,7 @@ loop_get_keys:
   inc dl
   cmp dl, 0xF
   jle loop_get_keys
+  ;; end
+  pop rdi
+  pop rdx
   ret

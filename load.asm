@@ -28,6 +28,11 @@ section .text
 ;; rdi = rom path
 global _load
 _load:
+  push rsi
+  push rax
+  push rdi
+  push rdx
+  ;; begin
   ;; stat syscall (4)
   mov rsi, statbuff 
   mov rax, SYS_STAT
@@ -61,6 +66,11 @@ _load:
   mov rdi, rax
   mov rax, SYS_CLOSE
   syscall
+  ;; end
+  pop rdx
+  pop rdi
+  pop rax
+  pop rsi
   ret
 
 stat_error:
