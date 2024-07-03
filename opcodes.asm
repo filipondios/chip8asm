@@ -181,8 +181,8 @@ _ld_vx_vy:
 ;; Set Vx = Vx OR Vy.
 ;; rdi = x
 ;; rsi = y
-global _or_vx_xy
-_or_vx_xy:
+global _or_vx_vy
+_or_vx_vy:
   mov rdx, cpu_v
   mov rax, cpu_v
   add rdx, rdi
@@ -203,8 +203,8 @@ _or_vx_xy:
 ;; Set Vx = Vx AND Vy.
 ;; rdi = x
 ;; rsi = y
-global _and_vx_xy
-_and_vx_xy:
+global _and_vx_vy
+_and_vx_vy:
   mov rdx, cpu_v
   mov rax, cpu_v
   add rdx, rdi
@@ -225,8 +225,8 @@ _and_vx_xy:
 ;; Set Vx = Vx XOR Vy.
 ;; rdi = x
 ;; rsi = y
-global _xor_vx_xy
-_xor_vx_xy:
+global _xor_vx_vy
+_xor_vx_vy:
   mov rdx, cpu_v
   mov rax, cpu_v
   add rdx, rdi
