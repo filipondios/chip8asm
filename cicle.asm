@@ -1,4 +1,5 @@
 %include "opcodes.asm"
+extern _drw_vx_vy_nibble
 extern printf
 
 section .data
