@@ -1,10 +1,14 @@
 #include <raylib.h>
+#include <stdio.h>
 
 extern unsigned char cpu_display[2048];
 extern unsigned char cpu_v[16];
 extern unsigned char cpu_ram[4096];
 extern unsigned short cpu_i;
 extern unsigned short cpu_pc;
+extern unsigned short cpu_stack[16];
+extern unsigned char cpu_sp;
+extern unsigned char cpu_keypad[16];
 
 void _draw_display(void) {
   for (int it = 0; it < 2048; it++) {
@@ -38,4 +42,34 @@ void _drw_vx_vy_nibble(unsigned char vx, unsigned char vy, unsigned char n) {
     }
   }
   cpu_pc += 2;
+}
+
+void printMemory(void) {
+  printf("\nStack: ");
+  for (int it = 0; it<=0xf; it++)
+    printf("%03x ", cpu_stack[it]);
+  printf("\n");
+
+  printf("Vreg: ");
+  for (int it = 0; it<=0xf; it++)
+    printf("%d ", cpu_v[it]);
+  printf("\n");
+
+  printf("PC: %04x\n", cpu_pc);
+  printf("I: %04x\n", cpu_i);
+  printf("SP: %d\n", cpu_sp);
+}
+
+/// Keypad mappings to QWERTY keyboard
+static const KeyboardKey keys[16] = {
+  KEY_X,    KEY_KP_1, KEY_KP_2, KEY_KP_3,
+  KEY_Q,    KEY_W,    KEY_E,    KEY_A,
+  KEY_S,    KEY_D,    KEY_Z,    KEY_C,
+  KEY_KP_4, KEY_R,    KEY_F,    KEY_V,
+};
+
+void _get_keys(void) {
+  for(unsigned char key = 0x0; key <= 0xf; key++){
+    cpu_keypad[key] = IsKeyDown(keys[key]);
+  }
 }
