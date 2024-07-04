@@ -59,17 +59,3 @@ void printMemory(void) {
   printf("I: %04x\n", cpu_i);
   printf("SP: %d\n", cpu_sp);
 }
-
-/// Keypad mappings to QWERTY keyboard
-static const KeyboardKey keys[16] = {
-  KEY_X,    KEY_KP_1, KEY_KP_2, KEY_KP_3,
-  KEY_Q,    KEY_W,    KEY_E,    KEY_A,
-  KEY_S,    KEY_D,    KEY_Z,    KEY_C,
-  KEY_KP_4, KEY_R,    KEY_F,    KEY_V,
-};
-
-void _get_keys(void) {
-  for(unsigned char key = 0x0; key <= 0xf; key++){
-    cpu_keypad[key] = IsKeyDown(keys[key]);
-  }
-}

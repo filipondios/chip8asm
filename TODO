@@ -2,7 +2,6 @@
 
 - Traduce the current C functions (at extern.c) to nasm
   - _drw_vx_vy_nibble (opcode)
-  - _get_keys (interface operation)
   - _draw_display (interface operation) 
 
 - Implement Timers (delay and sound)
