@@ -52,6 +52,14 @@ _ret:
   push rdx
   ;; begin
   movzx rax, byte [cpu_sp]
+  cmp rax, 0
+  jne cont_ret
+  ;; sp = 0 means
+  ;; program exit
+  mov rdi, 0
+  mov rax, 60
+  syscall
+cont_ret:
   sub rax, 2
   movzx rdx, word [cpu_stack + rax]
   add rdx, 2
@@ -665,30 +673,25 @@ _ld_vx_dt:
 ;; rdi = x
 global _ld_vx_k
 _ld_vx_k:
-  push rsi
   push rax
   push rdx
   ;; begin
-  mov rsi, cpu_keypad
   xor rax, rax
 loop_fx0a:
-  movzx rdx, byte [rsi + rax]
-  cmp dl, 0
+  movzx rdx, byte [cpu_keypad + rax]
+  cmp rdx, 0
   jne keyp_fx0a
-  inc al
-  cmp al, 0x10
-  jl loop_fx0a
+  inc rax
+  cmp rax, 0xF
+  jle loop_fx0a
   jmp end_fx0a
 keyp_fx0a:
-  mov rsi, cpu_v
-  add rsi, rdi
-  mov [rsi], al
+  mov [cpu_v + rdi], byte al
   INC_PC
 end_fx0a:
   ;; end
   pop rdx
   pop rax
-  pop rsi
   ret
 
 

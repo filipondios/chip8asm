@@ -1,9 +1,11 @@
 %include "opcodes.asm"
 extern printf
 extern _drw_vx_vy_nibble
+extern printMemory
 
 section .data
   opcode_msg: db "Found an unknown opcode: %04x",10,0 
+  msg: db "Opcode: %04x",10,0
 
 section .text
 global _exec_cicle
@@ -21,6 +23,18 @@ _exec_cicle:
   movzx rcx, byte [cpu_ram + rbx]
   shl rax, 8
   or  rax, rcx
+
+  push rax
+  call printMemory
+  pop rax
+
+  push rax
+  ;; Print & exit
+  mov rdi, msg
+  mov rsi, rax
+  mov rax, 0
+  call printf
+  pop rax
 
   ;; Get first nibble
   mov rbx, rax
@@ -211,6 +225,7 @@ maybe_0xC:
 
 maybe_0xD:
   cmp bx, 0xD
+  jne maybe_0xE
   mov rdi, rax
   and rdi, 0x0F00
   shr rdi, 8
@@ -256,7 +271,7 @@ maybe_0xF:
   call _ld_vx_dt
   jmp finish
 maybe_fx0a:
-  cmp bl, 0x0A
+  cmp bl, 0xA
   jne maybe_fx15
   call _ld_vx_k
   jmp finish
