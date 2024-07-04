@@ -1,14 +1,10 @@
-NOW:
-----
--> Implement interface operations
-    -| load: Load a ROM file to the chi8 ram 
-    -| init: Initialize all registers
-    -| get_keys: Get all pressed keys
-    - update_timers: Update delay and sound timers
-    - exec_cicle: Execute the next CPU cicle
-    - draw_display: Draw the display buffer in the window
+- Fix sprite address calculation (opcode)
 
-FAR:
-----
--> Implement the main loop
-  - Gather all interface operations together
+- Optimize .asm code
+
+- Traduce the current C functions (at extern.c) to nasm
+  - _drw_vx_vy_nibble (opcode)
+  - _get_keys (interface operation)
+  - _draw_display (interface operation) 
+
+- Implement Timers (delay and sound)
