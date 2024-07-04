@@ -1,10 +1,9 @@
 %include "opcodes.asm"
-extern _drw_vx_vy_nibble
 extern printf
+extern _drw_vx_vy_nibble
 
 section .data
   opcode_msg: db "Found an unknown opcode: %04x",10,0 
-  name: db "%04x ",0
 
 section .text
 global _exec_cicle
@@ -18,17 +17,10 @@ _exec_cicle:
   ;; Fetch next instruction
   movzx rbx, word [cpu_pc]
   movzx rax, byte [cpu_ram + rbx]
-  inc bx
+  inc rbx
   movzx rcx, byte [cpu_ram + rbx]
   shl rax, 8
   or  rax, rcx
-
-  ;push rax
-  ;mov rdi, name
-  ;mov rsi, rax
-  ;mov rax, 0
-  ;call printf
-  ;pop rax
 
   ;; Get first nibble
   mov rbx, rax

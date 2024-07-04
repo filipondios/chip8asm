@@ -10,7 +10,7 @@ TARGET=exec
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ display.c $^ $(CXTRAFLAGS)
+	$(CC) -g $(CFLAGS) -o $@ display.c $^ $(CXTRAFLAGS)
 
 %.o: %.asm
 	$(ASMC) $(ASMFLAGS) $< -o $@
