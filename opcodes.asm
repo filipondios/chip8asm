@@ -49,20 +49,16 @@ _cls:
 global _ret
 _ret:
   push rax
-  push rdi
   push rdx
   ;; begin
-  mov rax, [cpu_sp]
-  sub rax, 1
-  mov [cpu_sp], byte al
-  mov rdi, cpu_stack
-  add rdi, rax
-  mov rdx, [rdi]
+  movzx rax, byte [cpu_sp]
+  sub rax, 2
+  movzx rdx, word [cpu_stack + rax]
   add rdx, 2
   mov [cpu_pc], word dx
+  mov [cpu_sp], byte al
   ;; end
   pop rdx
-  pop rdi
   pop rax
   ret
 
@@ -81,21 +77,17 @@ _jp_addr:
 global _call_addr
 _call_addr:
   push rdx
-  push rsi
   push rax
   ;; begin
   movzx rdx, byte [cpu_sp]
-  mov rsi, cpu_stack
-  add rsi, rdx
-  mov ax, [cpu_pc]
-  mov [rsi], ax
+  movzx rax, word [cpu_pc]
+  mov [cpu_stack + rdx], word ax
   add rdx, 2
-  mov [cpu_sp], dl
-  mov [cpu_pc], di
+  mov [cpu_sp], byte dl
+  mov [cpu_pc], word di
   ;; end
-  push rax
-  push rsi
-  push rdx
+  pop rax
+  pop rdx
   ret
 
 
@@ -205,12 +197,16 @@ _add_vx_byte:
   push rdx
   push rax
   ;; begin
-  mov rdx, cpu_v
-  add rdx, rdi
-  mov al, byte [rdx]
-  add al, sil
-  mov [rdx], byte al
+  movzx rdx, byte [cpu_v + rdi]
+  add rdx, rsi
+  mov [cpu_v + rdi], byte dl
   INC_PC
+  ;mov rdx, cpu_v
+  ;add rdx, rdi
+  ;mov al, byte [rdx]
+  ;add al, sil
+  ;mov [rdx], byte al
+  ;INC_PC
   ;; end
   pop rdx
   pop rax
@@ -585,58 +581,6 @@ _rnd_vx_byte:
 ;; rdx = nibble
 ;global _drw_vx_vy_nibble
 ;_drw_vx_vy_nibble:
-;  movzx rax, byte [cpu_v + rdi] ; rax = v[x]
-;  movzx rbx, byte [cpu_v + rsi] ; rax = v[y]
-;  mov [cpu_v + 0xF], byte 0     ; v[0xf] = 0 
-;  xor rcx, rcx                  ; rcx = it = 0
-;  movzx r8, word [cpu_i]        ; r8 = i 
-;loop_dxyn_byte:
-;  add r8, rcx                   ; r8 = (i + it)
-;  movzx r9, byte [cpu_ram + r8] ; r9 = ram[i+it] = sprite
-;  xor r10, r10                  ; r10 = jt = 0
-;loop_dxyn_bit:
-;  mov r11, 0x80                 ; r11 = bit = 10000000 (bin)
-;  push rcx                      ; save rcx (used by shr)
-;  mov cl, r10b                  ; cl (rcx lower 8 bits) = r10b (re10 lower 8 bits)
-;  shr r11, cl                   ; r11 = bit >> jt
-;  pop rcx                       ; recover rcx
-;  and r11, r9                   ; r11 = bit&sprite
-;  cmp r11, 0                    ; bit&sprite == 0 ?
-;  je  loop_dxyn_bit_end
-  
-;  push rax                       ; save rax (used by div)
-;  add rax, r10                   ; rax = x + jt
-;  mov r12, 64                    
-;  div r12                        ; div(rax, 64) 
-;  shr rax, 8                     ; move higher 8 bits to lower 8 bits (get remainder)
-;  mov r12, rax                   ; r12 = (x+jt)%64
- 
-;  mov rax, rbx                   ; rax = y
-;  add rax, rcx                   ; rax = y + it
-;  mov r13, 32
-;  div r13                        ; div(rax, 32)  
-;  shr rax, 8                     ; move remainder to the lower 8 bits
-;  mov r13, rax                   ; r13 = (y+it)%32
-;  pop rax                        ; restore rax
-  
-;  shl r13, 6                     ; r13 = ((y+it)%32) * 64
-;  add r12, r13                   ; r12 = (x+jt)%64 + ((y+it)%32) * 64 = pos
-;  movzx r13, byte [cpu_display + r12]
-;  cmp r13, 0                     ; cpu_display[pox] == 0? 
-;  je loop_dxyn_bit_end
-;  mov [cpu_v + 0xF], byte 1
-;loop_dxyn_bit_end:
-;  xor r13, 1
-;  mov [cpu_display + r12], r13   ; cpu_display[pos]^=1
-;  inc r10                        ; jt++
-;  cmp r10, 8                     ; jt < 8?
-;  jl  loop_dxyn_bit
-  
-;  inc rcx                        ; it++ 
-;  cmp rcx, rdx                   ; it < nibble?
-;  jl  loop_dxyn_byte
-;  INC_PC  
-;  ret
 
 
 ;; Ex9E - SKP Vx
