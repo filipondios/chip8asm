@@ -1,6 +1,4 @@
-- Fix sprite address calculation (opcode)
-
-- Optimize .asm code
+- Improve .asm code cuality
 
 - Traduce the current C functions (at extern.c) to nasm
   - _drw_vx_vy_nibble (opcode)
@@ -8,3 +6,9 @@
   - _draw_display (interface operation) 
 
 - Implement Timers (delay and sound)
+
+- Improve opcode switch stement to a adress table.
+  (Currenty if there are 'n' opcodes in a same
+  nibble, it may cost O(n) to find the corresponding
+  function for that opcode. Thats because the current 'switch'
+  statement is more like a if-else statement).

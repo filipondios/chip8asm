@@ -48,6 +48,7 @@ main:
   mov rdi, cpu_ram
   mov rsi, sprites
   mov rdx, 80
+  call memcpy
 
   ;; Create window
   mov edi, [win_width]

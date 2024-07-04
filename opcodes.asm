@@ -773,13 +773,10 @@ _ld_f_vx:
   push rsi
   push rax
   ;; begin
-  mov rsi, cpu_v
-  add rsi, rdi
-  movzx rsi, byte [rsi]
-  mov rax, rsi
-  shl sil, 2
-  add sil, al
-  mov [cpu_i], word si
+  movzx rsi, byte [cpu_v + rdi]
+  mov rax, 5
+  mul si
+  mov [cpu_i], word ax
   INC_PC
   ;; end
   pop rax
