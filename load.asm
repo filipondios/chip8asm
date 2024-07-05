@@ -1,6 +1,7 @@
+extern cpu_ram
+extern printf
+  
 section .data
-  extern cpu_ram
-  extern printf
 
   ;; 'Macros'
   SYS_READ   equ 0
@@ -28,10 +29,9 @@ section .text
 ;; rdi = rom path
 global _load
 _load:
-  push rsi
-  push rax
-  push rdi
-  push rdx
+  push rbp
+  mov rbp, rsp
+  sub rsp, 16
   ;; begin
   ;; stat syscall (4)
   mov rsi, statbuff 
@@ -67,10 +67,7 @@ _load:
   mov rax, SYS_CLOSE
   syscall
   ;; end
-  pop rdx
-  pop rdi
-  pop rax
-  pop rsi
+  leave
   ret
 
 stat_error:

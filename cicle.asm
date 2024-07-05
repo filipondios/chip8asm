@@ -10,11 +10,9 @@ section .data
 section .text
 global _exec_cicle
 _exec_cicle:
-  push rbx
-  push rax
-  push rcx
-  push rdi
-  push rsi
+  push rbp
+  mov rbp, rsp
+  sub rsp, 16
   ;; begin
   ;; Fetch next instruction
   movzx rbx, word [cpu_pc]
@@ -310,11 +308,8 @@ maybe_fx65:
   jne opcode_error
   call _ld_vx_i
 finish:
-  pop rsi
-  pop rdi
-  pop rcx
-  pop rax
-  pop rbx
+  ;; end
+  leave
   ret
 
 opcode_error:

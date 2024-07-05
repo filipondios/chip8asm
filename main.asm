@@ -76,9 +76,7 @@ loop_begin:
 
 loop_end:
   call CloseWindow
-  add rsp, 16
-  mov rsp, rbp
-  pop rbp
+  leave
   ret
 
 arg_error:
