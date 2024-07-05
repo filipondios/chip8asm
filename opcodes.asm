@@ -15,9 +15,9 @@ section .text
 
 ;; Increase pc
 %macro INC_PC 0
-  movzx r8, word [cpu_pc]
+  mov r8w, word [cpu_pc]
   add r8w, 2
-  mov [cpu_pc], word r8w
+  mov word [cpu_pc], r8w
 %endmacro
 
 ;; 00E0 - CLS
@@ -28,11 +28,10 @@ _cls:
   sub rsp, 16
   ;; begin
   mov rdi, cpu_display
-  mov rsi, 0
-  mov rdx, 2048
+  mov esi, 0
+  mov edx, 2048
   call memset
-  mov rdi, cpu_draw
-  mov [rdi], byte 1
+  mov byte [cpu_draw], 1
   INC_PC
   ;; end
   leave
@@ -45,10 +44,10 @@ global _ret
 _ret:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
   movzx rax, byte [cpu_sp]
-  cmp rax, 0
+  cmp al, 0
   jne cont_ret
   ;; sp = 0 means
   ;; program exit
@@ -56,25 +55,26 @@ _ret:
   mov rax, 60
   syscall
 cont_ret:
-  sub rax, 2
-  movzx rdx, word [cpu_stack + rax]
-  add rdx, 2
-  mov [cpu_pc], word dx
-  mov [cpu_sp], byte al
+  sub al, 2
+  mov dx, word [cpu_stack + rax]
+  add dx, 2
+  mov word [cpu_pc], dx
+  mov byte [cpu_sp], al
   ;; end
   leave
   ret
 
 
 ;; 1nnn - JP addr
-;; Jump to location nnn.
+;; Jump to location addr.
+;; rdi = addr
 global _jp_addr
 _jp_addr:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ;sub rsp, 16
   ;; begin
-  mov [cpu_pc], word di
+  mov word [cpu_pc], di
   ;; end
   leave
   ret
@@ -87,14 +87,14 @@ global _call_addr
 _call_addr:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
   movzx rdx, byte [cpu_sp]
-  movzx rax, word [cpu_pc]
-  mov [cpu_stack + rdx], word ax
-  add rdx, 2
-  mov [cpu_sp], byte dl
-  mov [cpu_pc], word di
+  mov ax, word [cpu_pc]
+  mov word [cpu_stack + rdx], ax
+  add dl, 2
+  mov byte [cpu_sp], dl
+  mov word [cpu_pc], di
   ;; end
   leave
   ret
@@ -108,18 +108,16 @@ global _se_vx_byte
 _se_vx_byte:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rdx, cpu_v
-  add rdx, rdi
-  movzx rax, byte [rdx]
-  movzx rdx, word [cpu_pc]
+  mov al, byte [cpu_v + rdi]
+  mov dx, word [cpu_pc]
   cmp al, sil
   jne end_3xkk 
   add dx, 2
 end_3xkk:
   add dx, 2
-  mov [cpu_pc], dx
+  mov word [cpu_pc], dx
   ;; end
   leave
   ret
@@ -133,18 +131,16 @@ global _sne_vx_byte
 _sne_vx_byte:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rdx, cpu_v
-  add rdx, rdi
-  movzx rax, byte [rdx]
-  movzx rdx, word [cpu_pc]
+  mov al, byte [cpu_v + rdi]
+  mov dx, word [cpu_pc]
   cmp al, sil
   je end_4xkk 
   add dx, 2
 end_4xkk:
   add dx, 2
-  mov [cpu_pc], dx
+  mov word [cpu_pc], dx
   ;; end
   leave
   ret
@@ -158,21 +154,19 @@ global _se_vx_vy
 _se_vx_vy:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rdx, cpu_v
   mov rax, cpu_v
-  add rdx, rdi
   add rax, rsi
-  movzx rdx, byte [rdx]
-  movzx rax, byte [rax]
-  movzx rbx, word [cpu_pc]
-  cmp rdx, rax 
+  mov dl, byte [cpu_v + rdi]
+  mov al, byte [cpu_v + rsi]
+  mov bx, word [cpu_pc]
+  cmp dl, al 
   jne end_5xy0
   add bx, 2
 end_5xy0:
   add bx, 2
-  mov [cpu_pc], bx
+  mov word [cpu_pc], bx
   ;; end
   leave
   ret
@@ -186,11 +180,9 @@ global _ld_vx_byte
 _ld_vx_byte:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin 
-  mov rdx, cpu_v
-  add rdx, rdi
-  mov [rdx], byte sil
+  mov byte [cpu_v + rdi], sil
   INC_PC
   ;; end
   leave
@@ -205,11 +197,11 @@ global _add_vx_byte;
 _add_vx_byte:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  movzx rdx, byte [cpu_v + rdi]
-  add rdx, rsi
-  mov [cpu_v + rdi], byte dl
+  mov dl, byte [cpu_v + rdi]
+  add dl, sil
+  mov byte [cpu_v + rdi], dl
   INC_PC
   ;; end
   leave
@@ -226,12 +218,8 @@ _ld_vx_vy:
   mov rbp, rsp
   sub rsp, 16
   ;; begin
-  mov rdx, cpu_v
-  mov rax, cpu_v
-  add rdx, rdi
-  add rax, rsi
-  movzx rax, byte [rax]
-  mov [rdx], byte al
+  mov al, byte [cpu_v + rsi]
+  mov byte [cpu_v + rdi], al
   INC_PC
   ;; end
   leave
@@ -246,20 +234,13 @@ global _or_vx_vy
 _or_vx_vy:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rdx, cpu_v
-  mov rax, cpu_v
-  add rdx, rdi
-  add rax, rsi
-  mov rbx, rdx
-  movzx rdx, byte [rdx]
-  movzx rax, byte [rax]
+  mov dl, byte [cpu_v + rdi]
+  mov al, byte [cpu_v + rsi]
   or  al, dl
-  mov [rbx], byte al
-  mov rdx, cpu_v
-  add rdx, 0xF
-  mov [rdx], byte 0
+  mov byte [cpu_v + rdi], al
+  mov byte [cpu_v + 0xF], 0
   INC_PC
   ;; end 
   leave
@@ -274,22 +255,15 @@ global _and_vx_vy
 _and_vx_vy:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rdx, cpu_v
-  mov rax, cpu_v
-  add rdx, rdi
-  add rax, rsi
-  mov rbx, rdx
-  movzx rdx, byte [rdx]
-  movzx rax, byte [rax]
+  mov dl, byte [cpu_v + rdi]
+  mov al, byte [cpu_v + rsi]
   and al, dl
-  mov [rbx], byte al
-  mov rdx, cpu_v
-  add rdx, 0xF
-  mov [rdx], byte 0
+  mov byte [cpu_v + rdi], al
+  mov byte [cpu_v + 0xF], 0
   INC_PC
-  ;; end
+  ;; end 
   leave
   ret
 
@@ -302,20 +276,13 @@ global _xor_vx_vy
 _xor_vx_vy:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rdx, cpu_v
-  mov rax, cpu_v
-  add rdx, rdi
-  add rax, rsi
-  mov rbx, rdx
-  movzx rdx, byte [rdx]
-  movzx rax, byte [rax]
+  mov dl, byte [cpu_v + rdi]
+  mov al, byte [cpu_v + rsi]
   xor al, dl
-  mov [rbx], byte al
-  mov rdx, cpu_v
-  add rdx, 0xF
-  mov [rdx], byte 0
+  mov byte [cpu_v + rdi], al
+  mov byte [cpu_v + 0xF], 0
   INC_PC
   ;; end 
   leave
@@ -330,25 +297,18 @@ global _add_vx_vy
 _add_vx_vy:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rdx, cpu_v
-  mov rax, cpu_v
-  add rdx, rdi
-  add rax, rsi
-  mov rbx, rdx
-  movzx rdx, byte [rdx]
-  movzx rax, byte [rax]
-  mov rcx, cpu_v
-  add rcx, 0xF
+  mov dl, byte [cpu_v + rdi]
+  mov al, byte [cpu_v + rsi]
   add dl, al
   jnc ncarry_8xy4
-  mov [rcx], byte 1
+  mov byte [cpu_v + 0xF], 1
   jmp end_8xy4
 ncarry_8xy4:
-  mov [rcx], byte 0
+  mov byte [cpu_v + 0xF], 0
 end_8xy4: 
-  mov [rbx], byte dl  
+  mov byte [cpu_v + rdi], dl  
   INC_PC
   ;; end
   leave
@@ -363,25 +323,18 @@ global _sub_vx_vy
 _sub_vx_vy:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rdx, cpu_v
-  mov rax, cpu_v
-  add rdx, rdi
-  add rax, rsi
-  mov rbx, rdx
-  movzx rdx, byte [rdx]
-  movzx rax, byte [rax]
-  mov rcx, cpu_v
-  add rcx, 0xF
+  mov dl, byte [cpu_v + rdi]
+  mov al, byte [cpu_v + rsi]
   sub dl, al
   jnc ncarry_8xy5
-  mov [rcx], byte 0
+  mov byte [cpu_v + 0xF], 0
   jmp end_8xy5
 ncarry_8xy5:
-  mov [rcx], byte 1
+  mov byte [cpu_v + 0xF], 1
 end_8xy5: 
-  mov [rbx], byte dl  
+  mov byte [cpu_v + rdi], dl  
   INC_PC
   ;; end
   leave
@@ -395,22 +348,17 @@ global _shr_vx
 _shr_vx:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rsi, cpu_v
-  add rsi, rdi
-  mov rax, rsi
-  mov rbx, cpu_v
-  add rbx, 0xF
-  movzx rsi, byte [rsi]
+  mov sil, byte [cpu_v + rdi]
   shr sil, 1
   jnc noverflow_8xy6
-  mov [rbx], byte 1  
+  mov byte [cpu_v + 0xF], 1  
   jmp end_8xy6
 noverflow_8xy6:
-  mov [rbx], byte 0
+  mov byte [cpu_v + 0xF], 0
 end_8xy6:
-  mov [rax], byte sil
+  mov [cpu_v + rdi], byte sil
   INC_PC
   ;; end
   leave
@@ -425,25 +373,18 @@ global _subn_vx_vy
 _subn_vx_vy:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rdx, cpu_v
-  mov rax, cpu_v
-  add rdx, rdi
-  add rax, rsi
-  mov rbx, rdx
-  movzx rdx, byte [rdx]
-  movzx rax, byte [rax]
-  mov rcx, cpu_v
-  add rcx, 0xF
+  mov dl, byte [cpu_v + rdi]
+  mov al, byte [cpu_v + rsi]
   sub al, dl
   jnc ncarry_8xy7
-  mov [rcx], byte 0
+  mov byte [cpu_v + 0xF], 0
   jmp end_8xy7
 ncarry_8xy7:
-  mov [rcx], byte 1
+  mov byte [cpu_v + 0xF], 1
 end_8xy7: 
-  mov [rbx], byte al  
+  mov [cpu_v + rdi], byte al  
   INC_PC
   ;; end
   leave
@@ -457,22 +398,17 @@ global _shl_vx
 _shl_vx:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rsi, cpu_v
-  add rsi, rdi
-  mov rax, rsi
-  mov rbx, cpu_v
-  add rbx, 0xF
-  movzx rsi, byte [rsi]
+  mov sil, byte [cpu_v + rdi]
   shl sil, 1
   jnc noverflow_9xy6
-  mov [rbx], byte 1  
+  mov byte [cpu_v + 0xF], 1  
   jmp end_9xy6
 noverflow_9xy6:
-  mov [rbx], byte 0
+  mov byte [cpu_v + 0xF], 0
 end_9xy6:
-  mov [rax], byte sil
+  mov [cpu_v + rdi], byte sil
   INC_PC
   ;; end
   leave
@@ -487,21 +423,17 @@ global _sne_vx_vy
 _sne_vx_vy:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rdx, cpu_v
-  mov rax, cpu_v
-  add rdx, rdi
-  add rax, rsi
-  movzx rdx, byte [rdx]
-  movzx rax, byte [rax]
-  movzx rbx, word [cpu_pc]
-  cmp rdx, rax 
+  mov dl, byte [cpu_v + rdi]
+  mov al, byte [cpu_v + rsi]
+  mov bx, word [cpu_pc]
+  cmp dl, al 
   je end_9xy0
   add bx, 2
 end_9xy0:
   add bx, 2
-  mov [cpu_pc], bx
+  mov word [cpu_pc], bx
   ;; end
   leave
   ret
@@ -514,9 +446,9 @@ global _ld_i_addr
 _ld_i_addr:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov [cpu_i], word di
+  mov word [cpu_i], di
   INC_PC
   ;; end
   leave
@@ -530,12 +462,11 @@ global _jp_v0_addr
 _jp_v0_addr:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rsi, cpu_v
-  movzx rsi, byte [rsi]
+  movzx si, byte [cpu_v]
   add si, di
-  mov [cpu_pc], word si
+  mov word [cpu_pc], si
   ;; end
   leave
   ret
@@ -549,13 +480,11 @@ global _rnd_vx_byte
 _rnd_vx_byte:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rdx, cpu_v
-  add rdx, rdi
   rdrand ax
   and al, sil
-  mov [rdx], byte al
+  mov byte [cpu_v + rdi], al
   INC_PC
   ;; end
   leave
@@ -578,21 +507,17 @@ global _skp_vx:
 _skp_vx:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rsi, cpu_v
-  add rsi, rdi
-  movzx rsi, byte [rsi] ;; vx
-  mov rax, cpu_keypad
-  add rax, rsi
-  movzx rax, byte [rax]
-  movzx rdx, word [cpu_pc]
-  cmp rax, 1
+  movzx rsi, byte [cpu_v + rdi]
+  mov al, byte [cpu_keypad + rsi]
+  mov dx, word [cpu_pc]
+  cmp al, 1
   jne end_ex9e
   add dx, 2
 end_ex9e:
   add dx, 2
-  mov [cpu_pc], word dx
+  mov word [cpu_pc], dx
   ;; end
   leave
   ret
@@ -605,21 +530,17 @@ global _sknp_vx:
 _sknp_vx:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rsi, cpu_v
-  add rsi, rdi
-  movzx rsi, byte [rsi]
-  mov rax, cpu_keypad
-  add rax, rsi
-  movzx rax, byte [rax]
-  movzx rdx, word [cpu_pc]
-  cmp rax, 1
+  movzx rsi, byte [cpu_v + rdi]
+  mov al, byte [cpu_keypad + rsi]
+  mov dx, word [cpu_pc]
+  cmp al, 1
   je end_exa1
   add dx, 2
 end_exa1:
   add dx, 2
-  mov [cpu_pc], word dx
+  mov word [cpu_pc], dx
   ;; end
   leave
   ret
@@ -632,12 +553,10 @@ global _ld_vx_dt
 _ld_vx_dt:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rsi, cpu_v
-  add rsi, rdi
-  movzx rdx, byte [cpu_dt]
-  mov [rsi], dl
+  mov sil, byte [cpu_dt]
+  mov [cpu_v + rdi], sil
   INC_PC
   ;; end
   leave
@@ -651,19 +570,19 @@ global _ld_vx_k
 _ld_vx_k:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  xor rax, rax
+  xor rsi, rsi
 loop_fx0a:
-  movzx rdx, byte [cpu_keypad + rax]
-  cmp rdx, 0
+  mov dl, byte [cpu_keypad + rsi]
+  cmp dl, 0
   jne keyp_fx0a
-  inc rax
-  cmp rax, 0xF
+  inc sil
+  cmp sil, 0xF
   jle loop_fx0a
   jmp end_fx0a
 keyp_fx0a:
-  mov [cpu_v + rdi], byte al
+  mov byte [cpu_v + rdi], sil
   INC_PC
 end_fx0a:
   ;; end
@@ -678,12 +597,10 @@ global _ld_dt_vx
 _ld_dt_vx:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rsi, cpu_v
-  add rsi, rdi
-  movzx rdx, byte [rsi]
-  mov [cpu_dt], dl
+  mov dl, byte [cpu_v + rdi]
+  mov byte [cpu_dt], dl
   INC_PC
   ;; end
   leave
@@ -697,12 +614,10 @@ global _ld_st_vx
 _ld_st_vx:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rsi, cpu_v
-  add rsi, rdi
-  movzx rdx, byte [rsi]
-  mov [cpu_st], dl
+  mov dl, byte [cpu_v + rdi]
+  mov byte [cpu_st], dl
   INC_PC
   ;; end
   leave
@@ -716,23 +631,19 @@ global _add_i_vx
 _add_i_vx:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  mov rsi, cpu_v
-  add rsi, rdi
-  movzx rsi, byte [rsi]
-  movzx rdx, word [cpu_i]
-  mov rax, cpu_v
-  add rax, 0xF 
+  movzx si, byte [cpu_v + rdi]
+  mov dx, word [cpu_i]
   add dx, si
   cmp dx, 0xFFF
   jg  outaddr_fx1e
-  mov [rax], byte 0
+  mov byte [cpu_v + 0xF], 0
   jmp end_fx1e 
 outaddr_fx1e:
-  mov [rax], byte 1
+  mov byte [cpu_v + 0xF], 1
 end_fx1e:
-  mov [cpu_i], word dx
+  mov word [cpu_i], dx
   INC_PC
   ;; end
   leave
@@ -746,10 +657,10 @@ global _ld_f_vx
 _ld_f_vx:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
-  movzx rsi, byte [cpu_v + rdi]
-  mov rax, 5
+  movzx si, byte [cpu_v + rdi]
+  mov ax, 5
   mul si
   mov [cpu_i], word ax
   INC_PC
@@ -765,7 +676,7 @@ global _ld_b_vx
 _ld_b_vx:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
   ;; Hundreds
   movzx rsi, byte [cpu_v + rdi]
@@ -805,19 +716,19 @@ global _ld_i_vx
 _ld_i_vx:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
   movzx rsi, word [cpu_i]
-  mov rdx, 0 
+  xor rdx, rdx 
 loop_fx55:
-  movzx rax, byte [cpu_v + rdx]
-  mov [cpu_ram + rsi + rdx], byte al
+  mov al, byte [cpu_v + rdx]
+  mov byte [cpu_ram + rsi + rdx], al
   inc dl
   cmp dl, dil
   jle loop_fx55
   add si, di
-  add si, 1
-  mov [cpu_i], word si  
+  inc si
+  mov word [cpu_i], si  
   INC_PC
   ;; end
   leave
@@ -831,19 +742,19 @@ global _ld_vx_i
 _ld_vx_i:
   push rbp
   mov rbp, rsp
-  sub rsp, 16
+  ; sub rsp, 16
   ;; begin
   movzx rsi, word [cpu_i]
-  mov rdx, 0
+  xor rdx, rdx
 loop_fx65:
-  movzx rax, byte [cpu_ram + rsi + rdx]
-  mov [cpu_v + rdx], byte al
+  mov al, byte [cpu_ram + rsi + rdx]
+  mov byte [cpu_v + rdx], al
   inc dl
   cmp dl, dil
   jle loop_fx65
   add si, di
-  add si, 1
-  mov [cpu_i], word si
+  inc si
+  mov word [cpu_i], si
   INC_PC
   ;; end
   leave
