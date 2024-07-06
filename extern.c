@@ -10,14 +10,6 @@ extern unsigned short cpu_stack[16];
 extern unsigned char cpu_sp;
 extern unsigned char cpu_keypad[16];
 
-void _draw_display(void) {
-  for (int it = 0; it < 2048; it++) {
-    if(cpu_display[it]){
-      DrawRectangle((it%64) * 30, (it/64) * 30, 30, 30, WHITE);
-    }
-  }
-}
-
 void _drw_vx_vy_nibble(unsigned char vx, unsigned char vy, unsigned char n) {
   const unsigned char x = cpu_v[vx];
   const unsigned char y = cpu_v[vy];
