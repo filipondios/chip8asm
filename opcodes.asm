@@ -44,7 +44,6 @@ global _ret
 _ret:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   movzx rax, byte [cpu_sp]
   cmp al, 0
@@ -72,7 +71,6 @@ global _jp_addr
 _jp_addr:
   push rbp
   mov rbp, rsp
-  ;sub rsp, 16
   ;; begin
   mov word [cpu_pc], di
   ;; end
@@ -87,7 +85,6 @@ global _call_addr
 _call_addr:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   movzx rdx, byte [cpu_sp]
   mov ax, word [cpu_pc]
@@ -108,7 +105,6 @@ global _se_vx_byte
 _se_vx_byte:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov al, byte [cpu_v + rdi]
   mov dx, word [cpu_pc]
@@ -131,7 +127,6 @@ global _sne_vx_byte
 _sne_vx_byte:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov al, byte [cpu_v + rdi]
   mov dx, word [cpu_pc]
@@ -154,7 +149,6 @@ global _se_vx_vy
 _se_vx_vy:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov rax, cpu_v
   add rax, rsi
@@ -180,7 +174,6 @@ global _ld_vx_byte
 _ld_vx_byte:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin 
   mov byte [cpu_v + rdi], sil
   INC_PC
@@ -197,7 +190,6 @@ global _add_vx_byte;
 _add_vx_byte:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov dl, byte [cpu_v + rdi]
   add dl, sil
@@ -234,7 +226,6 @@ global _or_vx_vy
 _or_vx_vy:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov dl, byte [cpu_v + rdi]
   mov al, byte [cpu_v + rsi]
@@ -255,7 +246,6 @@ global _and_vx_vy
 _and_vx_vy:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov dl, byte [cpu_v + rdi]
   mov al, byte [cpu_v + rsi]
@@ -276,7 +266,6 @@ global _xor_vx_vy
 _xor_vx_vy:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov dl, byte [cpu_v + rdi]
   mov al, byte [cpu_v + rsi]
@@ -297,7 +286,6 @@ global _add_vx_vy
 _add_vx_vy:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov dl, byte [cpu_v + rdi]
   mov al, byte [cpu_v + rsi]
@@ -323,7 +311,6 @@ global _sub_vx_vy
 _sub_vx_vy:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov dl, byte [cpu_v + rdi]
   mov al, byte [cpu_v + rsi]
@@ -348,7 +335,6 @@ global _shr_vx
 _shr_vx:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov sil, byte [cpu_v + rdi]
   shr sil, 1
@@ -373,7 +359,6 @@ global _subn_vx_vy
 _subn_vx_vy:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov dl, byte [cpu_v + rdi]
   mov al, byte [cpu_v + rsi]
@@ -398,7 +383,6 @@ global _shl_vx
 _shl_vx:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov sil, byte [cpu_v + rdi]
   shl sil, 1
@@ -423,7 +407,6 @@ global _sne_vx_vy
 _sne_vx_vy:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov dl, byte [cpu_v + rdi]
   mov al, byte [cpu_v + rsi]
@@ -446,7 +429,6 @@ global _ld_i_addr
 _ld_i_addr:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov word [cpu_i], di
   INC_PC
@@ -462,7 +444,6 @@ global _jp_v0_addr
 _jp_v0_addr:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   movzx si, byte [cpu_v]
   add si, di
@@ -480,7 +461,6 @@ global _rnd_vx_byte
 _rnd_vx_byte:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   rdrand ax
   and al, sil
@@ -507,7 +487,6 @@ global _skp_vx:
 _skp_vx:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   movzx rsi, byte [cpu_v + rdi]
   mov al, byte [cpu_keypad + rsi]
@@ -530,7 +509,6 @@ global _sknp_vx:
 _sknp_vx:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   movzx rsi, byte [cpu_v + rdi]
   mov al, byte [cpu_keypad + rsi]
@@ -553,7 +531,6 @@ global _ld_vx_dt
 _ld_vx_dt:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov sil, byte [cpu_dt]
   mov [cpu_v + rdi], sil
@@ -570,7 +547,6 @@ global _ld_vx_k
 _ld_vx_k:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   xor rsi, rsi
 loop_fx0a:
@@ -597,7 +573,6 @@ global _ld_dt_vx
 _ld_dt_vx:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov dl, byte [cpu_v + rdi]
   mov byte [cpu_dt], dl
@@ -614,7 +589,6 @@ global _ld_st_vx
 _ld_st_vx:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   mov dl, byte [cpu_v + rdi]
   mov byte [cpu_st], dl
@@ -631,7 +605,6 @@ global _add_i_vx
 _add_i_vx:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   movzx si, byte [cpu_v + rdi]
   mov dx, word [cpu_i]
@@ -657,7 +630,6 @@ global _ld_f_vx
 _ld_f_vx:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   movzx si, byte [cpu_v + rdi]
   mov ax, 5
@@ -676,7 +648,6 @@ global _ld_b_vx
 _ld_b_vx:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   ;; Hundreds
   movzx rsi, byte [cpu_v + rdi]
@@ -716,7 +687,6 @@ global _ld_i_vx
 _ld_i_vx:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   movzx rsi, word [cpu_i]
   xor rdx, rdx 
@@ -742,7 +712,6 @@ global _ld_vx_i
 _ld_vx_i:
   push rbp
   mov rbp, rsp
-  ; sub rsp, 16
   ;; begin
   movzx rsi, word [cpu_i]
   xor rdx, rdx
