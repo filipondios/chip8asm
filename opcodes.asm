@@ -470,14 +470,107 @@ _rnd_vx_byte:
   leave
   ret
 
-
 ;; Dxyn - DRW Vx, Vy, nibble
 ;; Display n-byte sprite
-;; rdi = x
-;; rsi = y
+;; rdi = vx
+;; rsi = vy
 ;; rdx = nibble
-;global _drw_vx_vy_nibble
-;_drw_vx_vy_nibble:
+global _drw_vx_vy_nibble
+_drw_vx_vy_nibble:
+  push rbp
+  mov rbp, rsp
+  sub rsp, 16
+  ;; begin
+  mov byte [rbp-8], dl
+  ;; [rbp-1] = x = cpu_v[vx]
+  movzx rax, byte [cpu_v + rdi]
+  mov byte [rbp-1], al      
+  ;; [rbp-2] = y = cpu_v[vy]
+  movzx rax, byte [cpu_v + rsi]
+  mov byte [rbp-2], al     
+  ;; [rbp-3] = it = 0
+  mov byte [rbp-3], 0
+  ;; cpu_v[0xf] = 0  
+  mov byte [cpu_v + 0xF], 0 
+
+drw_it_loop:
+  ;; get sprite from RAM
+  ;; saved at [rsp-4]
+  movzx rdi, byte [rbp-3]
+  movzx rsi, word [cpu_i]
+  movzx rsi, byte [rsi + rdi + cpu_ram]
+  mov byte [rbp-4], sil
+
+  ;; Calculate y_wrap coordinate
+  ;; = (y+it)%32 mult by 64
+  ;; saved at [rbp-5]
+  movzx rax, byte [rbp-2] ;; y
+  movzx rdi, byte [rbp-3] ;; it
+  add ax, di
+  and ax, 31
+  shl ax, 6
+  mov word [rbp-6], ax
+
+  ;; Set jt = 0
+  ;; located at [rbp-6]
+  mov byte [rbp-7], 0
+
+drw_jt_loop:
+  ;; bit = (0x80>>jt)
+  mov rdi, 0x80
+  movzx rcx, byte [rbp-7]
+  shr di, cl
+  
+  ;; (bit&sprite) != 0?
+  movzx rax, byte [rbp-4]
+  and di, ax
+  cmp di, 0
+  je drw_jt_loop_end
+
+  ;; Calculate x_wrap coordinate
+  ;; = (x+jt)%64
+  movzx rdi, byte [rbp-1] ; x
+  movzx rsi, byte [rbp-7] ; jt
+  add di, si
+  and di, 63
+
+  ;; Calculate final position (x,y)
+  ;; passed to vector index
+  ;; = x_wrap + (y_wrap*64)
+  movzx rsi, word [rbp-6] ; y_wrap
+  add di, si
+
+  ;; Activate cpu_v[F] if overwrite
+  movzx rax, byte [cpu_display + rdi]
+  cmp al, 1
+  jne drw_no_overwrite
+  mov byte [cpu_v + 0xF], 1
+
+drw_no_overwrite:
+  xor al, 1
+  mov byte [cpu_display + rdi], al
+
+drw_jt_loop_end:
+  ;; end jt loop?
+  movzx rdi, byte [rbp-7]
+  inc dil
+  mov byte [rbp-7], dil
+  cmp dil, 8
+  jl drw_jt_loop
+
+  ;; end it loop?
+  movzx rdi, byte [rbp-3]
+  movzx rsi, byte [rbp-8]
+  inc dil
+  mov byte [rbp-3], dil
+  cmp dil, sil
+  jl drw_it_loop 
+
+drw_end:
+  INC_PC
+  ;; hell end
+  leave
+  ret
 
 
 ;; Ex9E - SKP Vx

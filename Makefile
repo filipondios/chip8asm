@@ -10,7 +10,7 @@ TARGET=exec
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) -g $(CFLAGS) -o $@ extern.c $^ $(CXTRAFLAGS)
+	$(CC) -g $(CFLAGS) -o $@ $^ $(CXTRAFLAGS)
 
 %.o: %.asm
 	$(ASMC) $(ASMFLAGS) $< -o $@

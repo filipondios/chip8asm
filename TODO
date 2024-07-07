@@ -1,6 +1,3 @@
-- Traduce the current C functions (at extern.c) to nasm
-  - _drw_vx_vy_nibble (opcode)
-
 - Implement Timers (delay and sound)
 
 - Improve opcode switch stement to a adress table.
