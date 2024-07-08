@@ -1,7 +1,5 @@
-./zig-impl/.zig-cache/
-./zig-impl/zig-out/
-./zig-impl/release/
-./zig-impl/debug/
-./zig-impl/build/
-./zig-impl/build-*/
-./zig-impl/docgen_tmp/
+*.o
+./src/chip8asm
+./src/tests/readfile
+./src/tests/readfileParam
+./src/tests/opcodesTests
