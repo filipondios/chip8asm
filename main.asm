@@ -5,14 +5,16 @@ extern BeginDrawing
 extern ClearBackground
 extern EndDrawing
 extern CloseWindow
+extern memcpy
 
 extern _load
 extern _exec_cicle
 extern _get_keys
 extern _draw_display
-extern memcpy
 extern cpu_ram
 extern sprites
+extern cpu_dt
+extern cpu_st
 
 section .data
   ;; 'Macros'
@@ -24,8 +26,7 @@ section .data
   win_width  dd 1920
   win_height dd 960
   win_fps    dd 60
-  color_black	db 0,0,0,255
-  arg_error_msg db "Error: Incorrect number of arguments",10,0
+  arg_msg    db "Error: Incorrect number of arguments",10,0
 
 section .text
 global main
@@ -59,27 +60,51 @@ main:
   mov edi, [win_fps]
   call SetTargetFPS
 
-loop_begin:
+;; Main loop:
+;; - Fetches, decodes and executes 
+;;   the next instruction
+;; - Gets the pressed keys
+;; - Updates the timers (DT and ST)
+;; - Draws the display buffer in 
+;;   the window
+main_loop:
   call WindowShouldClose
   cmp eax, 0
-  jne loop_end
+  jne main_loop_end
 
   call _exec_cicle
   call _get_keys
 
+  ;; Update delay timer
+  movzx rdi, byte [cpu_dt]
+  cmp dil, 0
+  je update_st
+  dec dil
+  mov byte [cpu_dt], dil
+
+update_st:
+  ;; Update sound timer
+  movzx rdi, byte [cpu_st]
+  cmp dil, 0
+  je main_loop_draw
+  dec dil
+  mov byte [cpu_st], dil
+
+main_loop_draw:
   call BeginDrawing
   call _draw_display
   call EndDrawing
-  jmp loop_begin
+  jmp main_loop
 
-loop_end:
+main_loop_end:
   call CloseWindow
   leave
   ret
 
+
 arg_error:
   mov rdi, STD_OUT
-  mov rsi, arg_error_msg
+  mov rsi, arg_msg
   mov rdx, 38
   mov rax, SYS_WRITE
   syscall
