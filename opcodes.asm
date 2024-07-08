@@ -316,10 +316,10 @@ _sub_vx_vy:
   mov al, byte [cpu_v + rsi]
   sub dl, al
   jnc ncarry_8xy5
-  mov byte [cpu_v + 0xF], 0
+  mov byte [cpu_v + 0xF], 1
   jmp end_8xy5
 ncarry_8xy5:
-  mov byte [cpu_v + 0xF], 1
+  mov byte [cpu_v + 0xF], 0
 end_8xy5: 
   mov byte [cpu_v + rdi], dl  
   INC_PC
