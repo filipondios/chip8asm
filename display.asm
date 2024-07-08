@@ -2,15 +2,19 @@ extern DrawRectangle
 extern cpu_display
 extern cpu_draw
 
-section .data
-  color_white	db 255,255,255,255
-
 section .text
 global _draw_display
 _draw_display:
   push rbp
   mov rbp, rsp
   sub rsp, 16
+
+  ;; Draw only if necessary
+  movzx rax, byte [cpu_draw]
+  cmp al, 1
+  jne loop_end 
+  mov byte [cpu_draw], 0
+
   mov r10, 0
   mov dword [rbp-4], 0
 
@@ -34,11 +38,19 @@ loop_start:
   and ecx, 63
   imul ecx, ecx, 30
 
+  movzx eax, byte [cpu_display + rax]
+  cmp al, 0
+  je pixel_zero
+  mov r8d, 0xFFFFFFFF
+  jmp draw_pixel
+pixel_zero:
+  mov r8d, 0x000000FF
+
+draw_pixel:
   mov edi, ecx
   mov esi, edx
   mov edx, 30
   mov ecx, 30
-  mov r8d, 0xFFFFFFFF
   call DrawRectangle
 
 next_iteration:

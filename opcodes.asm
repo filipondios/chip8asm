@@ -481,6 +481,7 @@ _drw_vx_vy_nibble:
   mov rbp, rsp
   sub rsp, 16
   ;; begin
+  mov byte [cpu_draw], 1
   mov byte [rbp-8], dl
   ;; [rbp-1] = x = cpu_v[vx]
   movzx rax, byte [cpu_v + rdi]

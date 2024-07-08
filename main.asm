@@ -68,8 +68,6 @@ loop_begin:
   call _get_keys
 
   call BeginDrawing
-  mov edi, [color_black]
-  call ClearBackground
   call _draw_display
   call EndDrawing
   jmp loop_begin
