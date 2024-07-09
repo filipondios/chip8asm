@@ -10,7 +10,7 @@
   <a href="#about">About</a> •
   <a href="#features">Features</a> •
   <a href="#features">Compile</a> •
-  <a href="#Run">Run</a>
+  <a href="#run">Run</a> •
   <a href="#todo-list">TODO List</a>
 </p><br>
 
@@ -53,3 +53,10 @@ command would be:
 ```bash
 ./chip8asm ./some-directory/rom.ch8
 ```
+
+## TODO List
+
+There are some features missing at the current program:
+
+- "Beep" sound implementation when the sound timer is activated.
+- Improvement of the instruction decoding/execution.
