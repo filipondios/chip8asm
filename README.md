@@ -20,19 +20,18 @@ This project is a fully-functional interpreter for the CHIP-8 programming langua
 
 ## Features
 
-Se han seguido articulos de referencia como <a href="http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#0.1">Cowgod's Chip-8 Technical Reference</a> and <a href="https://github.com/mattmikolay/chip-8/wiki/Mastering-CHIP%E2%80%908">Mastering CHIP‐8</a>. No obstante,
-se han implementado algunas cosas extras que mejoran el rendimiento. Estas son:
+Reference articles have been followed, such as <a href="http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#0.1">Cowgod's Chip-8 Technical Reference</a> and <a href="https://github.com/mattmikolay/chip-8/wiki/Mastering-CHIP%E2%80%908">Mastering CHIP‐8</a>. However, some extra things have been implemented that improve performance. These are:
 
-- Cuando el valor del stack pointer es 0 (bottom of the stack) y se realiza una operacion de return, el programa finaliza.
+- When the value of the stack pointer is 0 (bottom of the stack) and a return operation is performed, the program terminates.
 
-- Aunque no es la manera mas correcta, se ha intentado que Raylib haga 60 ciclos del bucle principal por segundo, por lo que
-  los timers se actualizarian a su correcta frecuencia (60Hz) pero se ejecutarian mas instrucciones por segundo (lo que no seria
-  tan real en una maquina CHIP-8 original).
+- Although it is not the most correct way, we have tried to make Raylib do 60 cycles of the main loop per second, so the timers would be updated at their correct frequency (60Hz) but more instructions would be executed per second.
+  the timers would be updated at their correct frequency (60Hz) but more instructions would be executed per second (which would not be as realistic on a CHIP machine).
+  not so realistic on an original CHIP-8 machine).
 
 ## Compile
 
-Esta seguro de que tengas <a href="https://github.com/raysan5/raylib/wiki/Working-on-GNU-Linux">raylib</a> instalado en tu sistema de manera estatica o dinamica (la segunda opcion se deberia de configurar manualmente por parte del usuario para poder compilar chip8asm).
-El interprete esta situado en el directorio src, por lo que bastaria con ejecutar los siguientes comandos:
+Make sure you have <a href="https://github.com/raysan5/raylib/wiki/Working-on-GNU-Linux">raylib</a> installed on your system statically or dynamically (the second option should be configured manually by the user in order to compile chip8asm).
+The interpreter is located in the src directory, so just run the following commands:
 
 ```bash
 cd src/
@@ -41,16 +40,16 @@ make
 
 ## Run
 
-Tras esto, se deberia de haber generado el archivo chip8asm. Ahora puedes ejecutar archivos binarios que contengan programas compatibles
-con el conjunto de instrucciones de CHIP-8. Algunos sitios para obtener ROMs son:
+After this, the chip8asm file should have been generated. Now you can run binary files containing programs compatible with the CHIP-8 instruction set.
+with the CHIP-8 instruction set. Some sites to obtain ROMs are:
 
 - <a href="https://github.com/kripod/chip8-roms">kripod/chip8-roms</a>
 - <a href="https://www.zophar.net/pdroms/chip8.html">pdroms</a>
 - <a href="https://chipo.ber.gp/">chipo</a>
 - <a href="https://johnearnest.github.io/chip8Archive/">johnearnest/chip8Archive</a>
 
-El programa chip8asm toma un solo parametro, que es la ruta relativa o absoluta al archivo ROM que quieras correr. Un ejemplo
-de comando seria:
+The chip8asm program takes only one parameter, which is the relative or absolute path to the ROM file you want to run. An example
+command would be:
 
 ```bash
 ./chip8asm ./some-directory/rom.ch8
