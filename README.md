@@ -16,21 +16,35 @@
 
 ## About
 
-This project is a fully-functional interpreter for the CHIP-8 programming language, meticulously crafted in assembly language. CHIP-8, originally designed in the 1970s, is a simple, "low-level" programming language used for creating games on early computer systems. The goal of this interpreter is to bring back the nostalgia and charm of CHIP-8.
+This project is a fully-functional interpreter for the CHIP-8 programming language,
+meticulously crafted in assembly language. CHIP-8, originally designed in the 1970s,
+is a simple, "low-level" programming language used for creating games on early
+computer systems. The goal of this interpreter is to bring back the nostalgia 
+and charm of CHIP-8, providing a modern implementation while preserving the 
+essence of the original.
 
 ## Features
 
-Reference articles have been followed, such as <a href="http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#0.1">Cowgod's Chip-8 Technical Reference</a> and <a href="https://github.com/mattmikolay/chip-8/wiki/Mastering-CHIP%E2%80%908">Mastering CHIP‐8</a>. However, some extra things have been implemented that improve performance. These are:
+This interpreter is based on well-documented references, such as 
+<a href="http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#0.1">Cowgod's Chip-8 Technical Reference</a>
+and <a href="https://github.com/mattmikolay/chip-8/wiki/Mastering-CHIP%E2%80%908">Mastering CHIP‐8</a>.
+In addition to faithfully reproducing the CHIP-8 instruction set, several 
+enhancements have been made to improve performance:
 
-- When the value of the stack pointer is 0 (bottom of the stack) and a return operation is performed, the program terminates.
+- Program termination: If the stack pointer is at 0 (bottom of the stack) and a 
+return operation is executed, the program terminates.
 
-- Although it is not the most correct way, I have tried to make Raylib do 60 cycles of the main loop per second, so the timers would be updated at their correct frequency (60Hz) but more instructions will be executed per second.
-  (which would not be as realistic on a CHIP machine).
+- Timing: Raylib has been configured to aim for 60 cycles of the main loop per 
+second. This ensures that timers update at their correct frequency (60Hz), 
+though more instructions per second are executed compared to an original CHIP-8 
+machine, offering a smoother experience.
 
 ## Compile
 
-Make sure you have <a href="https://github.com/raysan5/raylib/wiki/Working-on-GNU-Linux">raylib</a> installed on your system statically or dynamically (the second option should be configured manually by the user in order to compile chip8asm).
-The interpreter is located in the src directory, so just run the following commands:
+Ensure you have <a href="https://github.com/raysan5/raylib/wiki/Working-on-GNU-Linux">Raylib</a>
+installed on your system, either statically or dynamically (the latter requiring 
+manual configuration). To compile the interpreter, navigate to the src directory 
+and run the following commands:
 
 ```bash
 cd src/
@@ -39,16 +53,16 @@ make
 
 ## Run
 
-After this, the chip8asm file should have been generated. Now you can run binary files containing programs compatible with the CHIP-8 instruction set.
-with the CHIP-8 instruction set. Some sites to obtain ROMs are:
+After compilation, the `chip8asm` executable will be generated. You can run CHIP-8
+compatible ROMs using this interpreter. Some sources for ROMs are:
 
 - <a href="https://github.com/kripod/chip8-roms">kripod/chip8-roms</a>
 - <a href="https://www.zophar.net/pdroms/chip8.html">pdroms</a>
 - <a href="https://chipo.ber.gp/">chipo</a>
 - <a href="https://johnearnest.github.io/chip8Archive/">johnearnest/chip8Archive</a>
 
-The chip8asm program takes only one parameter, which is the relative or absolute path to the ROM file you want to run. An example
-command would be:
+To run a ROM, use the following command, where the parameter is the path to
+the ROM file:
 
 ```bash
 ./chip8asm ./some-directory/rom.ch8
@@ -60,3 +74,4 @@ There are some features missing at the current program:
 
 - "Beep" sound implementation when the sound timer is activated.
 - Improvement of the instruction decoding/execution.
+- Develop a graphical user interface for easier ROM selection and execution.
