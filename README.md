@@ -24,9 +24,8 @@ Reference articles have been followed, such as <a href="http://devernay.free.fr/
 
 - When the value of the stack pointer is 0 (bottom of the stack) and a return operation is performed, the program terminates.
 
-- Although it is not the most correct way, we have tried to make Raylib do 60 cycles of the main loop per second, so the timers would be updated at their correct frequency (60Hz) but more instructions would be executed per second.
-  the timers would be updated at their correct frequency (60Hz) but more instructions would be executed per second (which would not be as realistic on a CHIP machine).
-  not so realistic on an original CHIP-8 machine).
+- Although it is not the most correct way, I have tried to make Raylib do 60 cycles of the main loop per second, so the timers would be updated at their correct frequency (60Hz) but more instructions will be executed per second.
+  (which would not be as realistic on a CHIP machine).
 
 ## Compile
 
