@@ -1,5 +1,5 @@
 <h1 align="center">
-      <img src="https://github.com/dpv927/chip8asm/assets/113710742/8a5c14ea-02cf-479d-b442-98cfc772d235" height="250">
+      <img src="https://github.com/dpv927/chip8asm/assets/113710742/8a5c14ea-02cf-479d-b442-98cfc772d235" height="200">
 </h1>
 
 <!-- Project Description -->
