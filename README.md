@@ -61,6 +61,11 @@ compatible ROMs using this interpreter. Some sources for ROMs are:
 - <a href="https://chipo.ber.gp/">chipo</a>
 - <a href="https://johnearnest.github.io/chip8Archive/">johnearnest/chip8Archive</a>
 
+> [!WARNING]  
+> Some ROMs from this sites can contain null codes (0x0000) or other unknown ones
+> that for some reason don't exist in any of the references and people count with them.
+> This might cause the program to crash or to freeze itself.
+
 To run a ROM, use the following command, where the parameter is the path to
 the ROM file:
 
