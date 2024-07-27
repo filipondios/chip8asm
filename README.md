@@ -31,10 +31,10 @@ and <a href="https://github.com/mattmikolay/chip-8/wiki/Mastering-CHIP%E2%80%908
 In addition to faithfully reproducing the CHIP-8 instruction set, several 
 enhancements have been made to improve performance:
 
-- Program termination: If the stack pointer is at 0 (bottom of the stack) and a 
+- **Program termination**: If the stack pointer is at 0 (bottom of the stack) and a 
 return operation is executed, the program terminates.
 
-- Timing: Raylib has been configured to aim for 60 cycles of the main loop per 
+- **Timing**: Raylib has been configured to aim for 60 cycles of the main loop per 
 second. This ensures that timers update at their correct frequency (60Hz), 
 though more instructions per second are executed compared to an original CHIP-8 
 machine, offering a smoother experience.
