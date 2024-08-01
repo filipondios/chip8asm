@@ -402,11 +402,16 @@ TEST(ld_st_vx) {
   memset(cpu_v, 0, sizeof(cpu_v));
   cpu_st = 212;
   cpu_v[0] = 22;
-  cpu_pc = 0x312;
+  cpu_v[10] = 11;
+	cpu_pc = 0x312;
 
   _ld_st_vx(0);
   assert(cpu_st == 22);
   assert(cpu_pc == (0x312 + 2));  
+
+	_ld_st_vx(10);
+	assert(cpu_st == 11);
+  assert(cpu_pc == (0x312 + 4));  
 }
 
 TEST(add_i_vx) {

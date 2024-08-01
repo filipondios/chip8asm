@@ -1,6 +1,6 @@
 #include <raylib.h>
 
-#ifdef INSTALLED
+#ifdef INSTALL
 /* This path is only used when the purpose of the 
  * compilation is to install the program. */
 #define SOUND_PATH "/usr/share/chip8asm/beep.wav"
@@ -8,8 +8,16 @@
 #define SOUND_PATH "./resources/beep.wav"
 #endif
 
-extern unsigned char cpu_st;
+#ifdef DEBUG
+#include <stdio.h>
+extern unsigned short cpu_stack[16];
+extern unsigned char cpu_v[16];
+extern unsigned short cpu_i;
+extern unsigned short cpu_pc;
+extern unsigned char cpu_sp;
+#endif
 extern unsigned char cpu_dt;
+extern unsigned char cpu_st;
 Sound beep_sound;
 
 void loadBeepSound(void) {
@@ -41,20 +49,20 @@ void updateDT(void) {
 		cpu_dt--;	
 }
 
-/*
-void manageTimers(void) {
-	// One process will update the timers (delay and
-	// sound timers) at a 60Hz frequency.
-	// We will use the child process to do so.
-	const double freq = (double)1.0/60;
+#ifdef DEBUG
+void printMemory(void) {
+	printf("\n\nStack: ");
+	for(int i = 0; i < 16; i++)
+		printf("0x%0x4 ", cpu_stack[i]);
 
-	struct timespec ts;
-	ts.tv_sec = freq;
-	ts.tv_nsec = (long)((freq - ts.tv_sec)*1e9);
+	printf("\nRegisters: ");
+	for(int i = 0; i < 16; i++)
+		printf("%d ", cpu_v[i]);
 
-	while(1) {
-		if(cpu_dt) { cpu_dt--; }	
-		if(cpu_st) { cpu_st--; PlaySound(beep_sound); }
-		nanosleep(&ts, NULL);
-	}
-}*/
+	printf("\ni:  %0x4", cpu_i);
+	printf("\ndt: %d", cpu_dt);
+	printf("\nst: %d", cpu_st);
+	printf("\npc: %0x4", cpu_pc);
+	printf("\nsp: %d", cpu_sp);
+}
+#endif

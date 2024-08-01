@@ -10,6 +10,9 @@ extern loadBeepSound
 extern unloadBeepSound
 extern updateST
 extern updateDT
+%ifdef DEBUG
+extern printMemory
+%endif
 
 extern _load
 extern _exec_cicle
@@ -76,6 +79,11 @@ main_loop:
   call WindowShouldClose
   cmp eax, 0
   jne main_loop_end
+
+	%ifdef DEBUG
+	;; Print registers
+	call printMemory
+	%endif
 
   call _exec_cicle
   call _get_keys
