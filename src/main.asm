@@ -6,6 +6,10 @@ extern ClearBackground
 extern EndDrawing
 extern CloseWindow
 extern memcpy
+extern loadBeepSound
+extern unloadBeepSound
+extern updateST
+extern updateDT
 
 extern _load
 extern _exec_cicle
@@ -59,6 +63,7 @@ main:
 
   mov edi, [win_fps]
   call SetTargetFPS
+	call loadBeepSound
 
 ;; Main loop:
 ;; - Fetches, decodes and executes 
@@ -74,21 +79,8 @@ main_loop:
 
   call _exec_cicle
   call _get_keys
-
-  ;; Update delay timer
-  movzx rdi, byte [cpu_dt]
-  cmp dil, 0
-  je update_st
-  dec dil
-  mov byte [cpu_dt], dil
-
-update_st:
-  ;; Update sound timer
-  movzx rdi, byte [cpu_st]
-  cmp dil, 0
-  je main_loop_draw
-  dec dil
-  mov byte [cpu_st], dil
+	call updateDT
+	call updateST
 
 main_loop_draw:
   call BeginDrawing
@@ -97,6 +89,7 @@ main_loop_draw:
   jmp main_loop
 
 main_loop_end:
+	call unloadBeepSound
   call CloseWindow
   leave
   ret

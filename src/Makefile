@@ -10,7 +10,7 @@ TARGET=chip8asm
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) -g $(CFLAGS) -o $@ $^ $(CXTRAFLAGS)
+	$(CC) $(CFLAGS) -o $@ extern.c $^ $(CXTRAFLAGS)
 
 %.o: %.asm
 	$(ASMC) $(ASMFLAGS) $< -o $@

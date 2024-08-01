@@ -23,7 +23,7 @@ section .data
   cpu_st:   db 0x0               ;; Sound Timer
   cpu_pc:   dw 0x200             ;; Program counter
   cpu_sp:   db 0x0               ;; Stack pointer (sp is a keyword)
-  cpu_draw: db 0x0
+  cpu_draw: db 0x0							 ;; Draw display buffer on screen?
 
   ;; Graphics display characters (0x0 - 0xF)
   sprites:  db 0xF0, 0x90, 0x90, 0x90, 0xF0 ;; 0
