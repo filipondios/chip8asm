@@ -66,7 +66,7 @@ main:
 
   mov edi, [win_fps]
   call SetTargetFPS
-	call loadBeepSound
+  call loadBeepSound
 
 ;; Main loop:
 ;; - Fetches, decodes and executes 
@@ -80,10 +80,10 @@ main_loop:
   cmp eax, 0
   jne main_loop_end
 
-	%ifdef DEBUG
-	;; Print registers
-	call printMemory
-	%endif
+  %ifdef DEBUG
+  ;; Print registers
+  call printMemory
+  %endif
 
   call _exec_cicle
   call _get_keys
@@ -97,7 +97,7 @@ main_loop_draw:
   jmp main_loop
 
 main_loop_end:
-	call unloadBeepSound
+  call unloadBeepSound
   call CloseWindow
   leave
   ret

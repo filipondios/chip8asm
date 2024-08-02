@@ -10,10 +10,10 @@ _draw_display:
   sub rsp, 16
 
   ;; Draw only if necessary
-  movzx rax, byte [cpu_draw]
-  cmp al, 1
-  jne loop_end 
-  mov byte [cpu_draw], 0
+  ; movzx rax, byte [cpu_draw]
+  ; cmp al, 1
+  ; jne loop_end 
+  ; mov byte [cpu_draw], 0
 
   mov r10, 0
   mov dword [rbp-4], 0
