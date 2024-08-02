@@ -14,6 +14,25 @@ unsigned char cpu_dt;
 unsigned char cpu_st;
 unsigned char cpu_ram[4096];
 
+static const unsigned char sprites[80] = {
+  0xf0, 0x90, 0x90, 0x90, 0xf0, // 0
+  0x20, 0x60, 0x20, 0x20, 0x70, // 1
+  0xf0, 0x10, 0xf0, 0x80, 0xf0, // 2
+  0xf0, 0x10, 0xf0, 0x10, 0xf0, // 3
+  0x90, 0x90, 0xf0, 0x10, 0x10, // 4
+  0xf0, 0x80, 0xf0, 0x10, 0xf0, // 5
+  0xf0, 0x80, 0xf0, 0x90, 0xf0, // 6
+  0xf0, 0x10, 0x20, 0x40, 0x40, // 7
+  0xf0, 0x90, 0xf0, 0x90, 0xf0, // 8
+  0xf0, 0x90, 0xf0, 0x10, 0xf0, // 9
+  0xf0, 0x90, 0xf0, 0x90, 0x90, // A
+  0xe0, 0x90, 0xe0, 0x90, 0xe0, // B
+  0xf0, 0x80, 0x80, 0x80, 0xf0, // C
+  0xe0, 0x90, 0x90, 0x90, 0xe0, // D
+  0xf0, 0x80, 0xf0, 0x80, 0xf0, // E
+  0xf0, 0x80, 0xf0, 0x80, 0x80, // F
+};
+
 extern void _cls(void);
 extern void _ret(void);
 extern void _jp_addr(unsigned short);
@@ -36,6 +55,7 @@ extern void _sne_vx_vy(unsigned char, unsigned char);
 extern void _ld_i_addr(unsigned short);
 extern void _jp_v0_addr(unsigned short);
 extern void _rnd_vx_byte(unsigned char, unsigned char);
+extern void _drw_vx_vy_nibble(unsigned char, unsigned char, unsigned char);
 extern void _skp_vx(unsigned char);
 extern void _sknp_vx(unsigned char);
 extern void _ld_vx_dt(unsigned char);
@@ -334,6 +354,33 @@ TEST(rnd_vx_byte) {
   assert(cpu_pc == (0x332 + 2));
 }
 
+TEST(drw_vx_vy_nibble) {
+  memcpy(cpu_ram, sprites, sizeof(sprites));
+  memset(cpu_v, 0, sizeof(cpu_v));
+  cpu_pc = 0x222;
+  cpu_draw = 0;
+  cpu_i = 0x0;
+
+  _drw_vx_vy_nibble(3,3,5);
+  for(int i=0; i < 2048; i++){
+    if((i % 64 == 0) && (i != 0))
+      printf("\n");
+    printf("%d", cpu_display[i]);
+  }
+  printf("\n\n");
+
+  _drw_vx_vy_nibble(3,3,5);
+  for(int i=0; i < 2048; i++){
+    if((i % 64 == 0) && (i != 0))
+      printf("\n");
+    printf("%d", cpu_display[i]);
+  }
+
+  printf("\n");
+  assert(cpu_v[0xf] == 1);
+  assert(cpu_pc == (0x222 + 4));
+}
+
 TEST(skp_vx) {
   memset(cpu_v, 0, sizeof(cpu_v));
   memset(cpu_keypad, 0, sizeof(cpu_keypad));
@@ -503,6 +550,7 @@ int main() {
   RUN_TEST(ld_i_addr);
   RUN_TEST(jp_v0_addr);
   RUN_TEST(rnd_vx_byte);
+  RUN_TEST(drw_vx_vy_nibble);
   RUN_TEST(skp_vx);
   RUN_TEST(sknp_vx);
   RUN_TEST(ld_vx_dt);
