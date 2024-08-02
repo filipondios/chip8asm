@@ -34,6 +34,7 @@ section .data
   win_height dd 960
   win_fps    dd 60
   arg_msg    db "Error: Incorrect number of arguments",10,0
+  BLACK db 0, 0, 0, 255
 
 section .text
 global main
@@ -92,6 +93,10 @@ main_loop:
 
 main_loop_draw:
   call BeginDrawing
+  
+  mov edi, dword [BLACK]
+  call ClearBackground
+
   call _draw_display
   call EndDrawing
   jmp main_loop
