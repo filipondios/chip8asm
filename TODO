@@ -1,5 +1,18 @@
+--------------------------- IMPLEMENTED
+- Timers update.
+- Sound "beep" when the sound timer != 0.
+- Memory Debug (registers, display, etc)
+- Makefile options for Debug and Release
 
-- "Beep" sound implementation when the sound timer is activated.
+--------------------------- BUGS
+- Somehow the display buffer draws all shapes correctly, but when it has
+  to override any value of the buffer (from 1 to 0, which sets v[f]=1), 
+  the output window does not match with the display buffer, where the 
+  display buffer always has the correct values.
+    - Possible causes:
+      - 0 values at the buffer when processing at _draw_display are ommited
+
+--------------------------- IMPROVEMENTS
 
 - Develop a graphical user interface for easier ROM selection and execution.
 
