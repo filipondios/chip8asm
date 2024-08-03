@@ -39,4 +39,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Chip-8 Instructions.
 - ROM file loading from parameter.
 
+[2.0.0]: https://github.com/dpv927/chip8asm/tree/v2.0.0
 [1.0.0]: https://github.com/dpv927/chip8asm/tree/v1.0.0
