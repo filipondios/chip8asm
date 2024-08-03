@@ -5,14 +5,15 @@ CFLAGS=-no-pie -m64
 CXTRAFLAGS=-lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -lc
 SRCS=main.asm load.asm memory.asm keys.asm cicle.asm display.asm
 OBJS = $(SRCS:.asm=.o)
-TARGET=chip8asm
-TARGET_DEBUG=$(TARGET)-debug
+PROGNAME=chip8asm
+TARGET=$(PROGNAME).target
+TARGET_DEBUG=$(PROGNAME).debug
 
 # Usual compilation
-all: $(TARGET)
-
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ extern.c $^ $(CXTRAFLAGS)
+all: target debug
+	
+target: $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) extern.c $^ $(CXTRAFLAGS)
 
 %.o: %.asm
 	$(ASMC) $(ASMFLAGS) $< -o $@
