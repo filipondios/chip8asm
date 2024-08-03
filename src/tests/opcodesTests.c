@@ -6,7 +6,6 @@ unsigned char cpu_v[16];
 unsigned char cpu_display[2048];
 unsigned char cpu_sp;
 unsigned short cpu_pc;
-unsigned char cpu_draw;
 unsigned short cpu_stack[16];
 unsigned short cpu_i;
 unsigned char cpu_keypad[16];
@@ -77,11 +76,9 @@ TEST(cls) {
   memset(cpu_display, 33, sizeof(cpu_display));
 
   cpu_pc = 0x202;
-  cpu_draw = 0;
   _cls();
 
   assert(memcmp(cpu_display, buff, 2048) == 0);
-  assert(cpu_draw != 0);
   assert(cpu_pc == (0x202 + 2));
 }
 
@@ -358,7 +355,6 @@ TEST(drw_vx_vy_nibble) {
   memcpy(cpu_ram, sprites, sizeof(sprites));
   memset(cpu_v, 0, sizeof(cpu_v));
   cpu_pc = 0x222;
-  cpu_draw = 0;
   cpu_i = 0x0;
 
   _drw_vx_vy_nibble(3,3,5);
