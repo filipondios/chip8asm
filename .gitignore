@@ -1,5 +1,7 @@
 *.o
-./src/chip8asm
-./src/tests/readfile
-./src/tests/readfileParam
-./src/tests/opcodesTests
+*.test
+*.target
+*.debug
+*.ch8
+*.c8
+*.rom

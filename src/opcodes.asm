@@ -9,7 +9,6 @@ extern cpu_dt
 extern cpu_st
 extern cpu_pc
 extern cpu_sp
-extern cpu_draw
 
 section .text
 
@@ -31,7 +30,6 @@ _cls:
   mov esi, 0
   mov edx, 2048
   call memset
-  mov byte [cpu_draw], 1
   INC_PC
   ;; end
   leave
@@ -481,7 +479,6 @@ _drw_vx_vy_nibble:
   mov rbp, rsp
   sub rsp, 16
   ;; begin
-  mov byte [cpu_draw], 1
   mov byte [rbp-8], dl
   ;; [rbp-1] = x = cpu_v[vx]
   movzx rax, byte [cpu_v + rdi]

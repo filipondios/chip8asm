@@ -6,6 +6,13 @@ extern ClearBackground
 extern EndDrawing
 extern CloseWindow
 extern memcpy
+extern loadBeepSound
+extern unloadBeepSound
+extern updateST
+extern updateDT
+%ifdef DEBUG
+extern printMemory
+%endif
 
 extern _load
 extern _exec_cicle
@@ -27,6 +34,7 @@ section .data
   win_height dd 960
   win_fps    dd 60
   arg_msg    db "Error: Incorrect number of arguments",10,0
+  BLACK db 0, 0, 0, 255
 
 section .text
 global main
@@ -59,6 +67,7 @@ main:
 
   mov edi, [win_fps]
   call SetTargetFPS
+  call loadBeepSound
 
 ;; Main loop:
 ;; - Fetches, decodes and executes 
@@ -72,31 +81,28 @@ main_loop:
   cmp eax, 0
   jne main_loop_end
 
+  %ifdef DEBUG
+  ;; Print registers
+  call printMemory
+  %endif
+
   call _exec_cicle
   call _get_keys
-
-  ;; Update delay timer
-  movzx rdi, byte [cpu_dt]
-  cmp dil, 0
-  je update_st
-  dec dil
-  mov byte [cpu_dt], dil
-
-update_st:
-  ;; Update sound timer
-  movzx rdi, byte [cpu_st]
-  cmp dil, 0
-  je main_loop_draw
-  dec dil
-  mov byte [cpu_st], dil
+	call updateDT
+	call updateST
 
 main_loop_draw:
   call BeginDrawing
+  
+  mov edi, dword [BLACK]
+  call ClearBackground
+
   call _draw_display
   call EndDrawing
   jmp main_loop
 
 main_loop_end:
+  call unloadBeepSound
   call CloseWindow
   leave
   ret

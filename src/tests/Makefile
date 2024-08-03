@@ -5,7 +5,7 @@ LDFLAGS=-no-pie
 CC=gcc
 CFLAGS=-c
 OBJ_FILES=*.o
-TARGETS=readfile readfileParam opcodes
+TARGETS=readfile.test readfileParam.test opcodes.test
 
 all: $(TARGETS)
 	@echo ""
@@ -20,7 +20,7 @@ all: $(TARGETS)
 # ld -o readfile readfile.o
 # rm *.o
 
-readfile: readfile.o
+readfile.test: readfile.o
 	$(LD) -o $@ $<
 	rm $(OBJ_FILES)
 
@@ -33,7 +33,7 @@ readfile.o: readfile.asm
 # ld -o readfileParam readfileParam.o
 # rm *.o
 
-readfileParam: readfileParam.o
+readfileParam.test: readfileParam.o
 	$(LD) -o $@ $<
 	rm $(OBJ_FILES)
 
@@ -47,7 +47,7 @@ readfileParam.o: readfileParam.asm
 # gcc -no-pie ./opcodes.o opcodesTests.o -o opcodesTests
 #rm *.o
 
-opcodes: opcodesTests.o opcodes.o
+opcodes.test: opcodesTests.o opcodes.o
 	$(CC) -g $(LDFLAGS) -o $@ $^
 	rm $(OBJ_FILES)
 
