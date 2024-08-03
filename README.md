@@ -3,7 +3,7 @@
 </h1>
 
 <!-- Project Description -->
-<h4 align="center">A <a href="https://en.wikipedia.org/wiki/CHIP-8">CHIP-8</a> interpreter written written in x64 Linux <a href="https://www.nasm.us/">NASM</a> assembly and <a href="https://www.raylib.com/">Raylib</a></h4>
+<h4 align="center">A <a href="https://en.wikipedia.org/wiki/CHIP-8">CHIP-8</a> interpreter written in x64 Linux <a href="https://www.nasm.us/">NASM</a> assembly and <a href="https://www.raylib.com/">Raylib</a></h4>
 
 <!-- Quick links -->
 <p align="center">
@@ -38,6 +38,10 @@ and a return operation is executed, the program terminates.
 per second. This ensures that timers update at their correct frequency (60Hz), 
 though more instructions per second are executed compared to an original CHIP-8 
 machine, offering a smoother experience.
+
+- **Sound**: This interpreter has sound support for programs that use the delay
+timer to play the CHIP-8 *beep* sound. This sound has been generated thanks to
+[onlinetonegenerator.com] using a 440Hz frequency and a square wave.
 
 ## Running
 
@@ -107,6 +111,7 @@ also be made available under GPL v3.
 
 [Cowgod's Chip-8 Technical Reference]: http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#0.1
 [Mastering CHIP-8]: https://github.com/mattmikolay/chip-8/wiki/Mastering-CHIP%E2%80%908
+[onlinetonegenerator.com]: https://onlinetonegenerator.com
 [compiling]: #compile
 [executable]: bin/chip8asm
 [releases page]: https://github.com/dpv927/chip8asm/releases
