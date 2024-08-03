@@ -1,4 +1,9 @@
 x Add sound implementation @feature
+(A) Compress README.md logo
+(A) Create a install and uninstall option in the Makefile
+(A) Create install and uninstall documentation at the README.md
+(A) Check support at other Linux distributions.
+(A) Create a MAN page file.
 (A) Develop a graphical user interface for ROM selection. @usability
 (A) Create a wiki page to explaing each opcode implementation. @documentation
 (B) Add more comments at the .asm code. @documentation
