@@ -1,8 +1,8 @@
 ASMC=nasm
-CC=gcc
+CC=cc
 ASMFLAGS=-f elf64
 CFLAGS=-no-pie -m64
-CXTRAFLAGS=-lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -lc
+CXTRAFLAGS=-lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 SRCS=main.asm load.asm memory.asm keys.asm cicle.asm display.asm
 OBJS = $(SRCS:.asm=.o)
 PROGNAME=chip8asm
