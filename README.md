@@ -1,5 +1,5 @@
-<h1 align="center">     
-      <img src="https://github.com/user-attachments/assets/8f3f77d0-035e-423c-856f-150bb7748a12" height="200">
+<h1 align="center">
+      <img src="src/resources/logo.png" height="200">
 </h1>
 
 <!-- Project Description -->
