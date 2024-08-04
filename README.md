@@ -67,7 +67,7 @@ To run a ROM, use the following command, where the parameter is the path to
 the ROM file:
 
 ```bash
-./chip8asm some/directory/to/rom
+chip8asm some/directory/to/rom
 ```
 
 > [!IMPORTANT]

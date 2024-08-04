@@ -1,0 +1,144 @@
+.TH CHIP8ASM 1 "2024-08-04" \VERSION "CHIP-8 Interpreter Manual"
+
+.SH NAME
+chip8asm \- A CHIP-8 interpreter written in x64 Linux NASM assembly and Raylib
+
+.SH SYNOPSIS
+.B chip8asm
+.I [ROM file]
+
+.SH DESCRIPTION
+.B chip8asm
+is a fully functional interpreter for the CHIP-8 programming language, 
+meticulously crafted in assembly language. CHIP-8, originally designed in the
+1970s, is a simple, "low-level" programming language used for creating games
+on early computer systems. The goal of this interpreter is to bring back the 
+nostalgia and charm of CHIP-8, providing a modern implementation while 
+preserving the essence of the original.
+
+.SH FEATURES
+This interpreter is based on well-documented references, such as Cowgod's 
+Chip-8 Technical Reference and Mastering CHIP-8. In addition to faithfully 
+reproducing the CHIP-8 instruction set, several enhancements have been made to 
+improve performance:
+
+.TP
+.B Program termination
+If the stack pointer is at 0 (bottom of the stack) and a return operation is
+executed, the program terminates.
+
+.TP
+.B Timing
+Raylib has been configured to aim for 60 cycles of the main loop per second.
+This ensures that timers update at their correct frequency (60Hz), though more 
+instructions per second are executed compared to an original CHIP-8 machine, 
+offering a smoother experience.
+
+.TP
+.B Sound
+This interpreter has sound support for programs that use the delay timer to 
+play the CHIP-8 beep sound. This sound has been generated thanks to
+onlinetonegenerator.com using a 440Hz frequency and a square wave.
+
+.SH RUN
+To run a ROM file that contains a CHIP-8 program, you need the chip8asm 
+executable to run it. You can obtain it via compiling the project and 
+installing it, or from any of the releases at the releases page. After that, 
+you can run CHIP-8 compatible ROMs using this interpreter.
+
+Some sources for ROMs are:
+.TP
+.B https://github.com/kripod/chip8-roms
+.TP
+.B https://www.zophar.net/pdroms/chip8.html
+.TP
+.B https://chipo.ber.gp/
+.TP
+.B https://johnearnest.github.io/chip8Archive/
+
+.TP
+.B Warning
+Some ROMs from these sites may contain null codes (0x0000) or other unknown 
+ones that for some reason do not exist in any of the references and people 
+count on them. This might cause the program to crash or freeze.
+
+.TP
+.B Important
+The program does not care about the file extension (some sites may use .c8, 
+.ch8, etc), but it checks if the file size is small enough to fit inside the 
+read-only segment of the CHIP-8 memory (The maximum file size is 3584 (0xE00)
+bytes, given by the addresses 0x200 - 0xFFF).
+
+.SH USAGE
+.B
+.IR "chip8asm some/directory/to/rom"
+
+.SH COMPILE
+Ensure you have raylib and nasm installed on your system, either statically or
+dynamically (the latter requires manual configuration). To compile the 
+interpreter, follow the commands below:
+
+.B
+.RS
+git clone https://github.com/dpv927/chip8asm.git
+.br
+cd chip8asm/src/
+.br
+make target
+.RE
+
+.TP
+.B Note
+You can now run the executable. However, if you move it to another directory,
+you'll need to relocate the resources folder to the same directory as the 
+executable to ensure sound functionality. To avoid this hassle, consider 
+installing the program.
+
+.SH INSTALL
+If you compiled the project, now you just have to run one command:
+
+.B
+.RS
+sudo make install
+.RE
+
+If you downloaded the interpreter from one of the releases, you just need to 
+move the necessary files to the system path (This assumes that you are inside 
+the downloaded release folder):
+
+.B
+.RS
+sudo cp -f chip8asm /usr/local/bin
+.br
+sudo chmod 755 /usr/local/bin/chip8asm
+.br
+sudo mkdir -p /usr/share/chip8asm
+.br
+sudo cp -f resources/beep.wav /usr/share/chip8asm
+.RE
+
+.SH UNINSTALL
+Of course, you can remove the project from the system path. Just undo the 
+steps from the installation guide:
+
+.B
+.RS
+sudo rm /usr/local/bin/chip8asm
+.br
+sudo rm -rf /usr/share/chip8asm
+.RE
+
+.SH LICENSE
+.B chip8asm
+is free and distributed under the GNU General Public License version 3 (GPL v3).
+Essentially, this means you are free to do almost exactly what you want with 
+the program, including distributing it among your friends, making it available
+for download from your website, selling it (either by itself or as part of some
+bigger software package), or using it as the starting point for a software
+project of your own.
+
+The only real limitation is that whenever you distribute chip8asm in some way, 
+you MUST always include the license and the full source code (or a pointer to 
+where the source code can be found) to generate the exact binary you are 
+distributing. If you make any changes to the source code, these changes must 
+also be made available under GPL v3.

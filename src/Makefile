@@ -44,12 +44,12 @@ target-install: $(OBJS)
 
 install: target-install
 	mkdir -p $(PREFIX)/bin/
-	mv chip8asm.target chip8asm 
-	cp -f chip8asm $(PREFIX)/bin
+	cp -f chip8asm.target $(PREFIX)/bin/chip8asm
 	chmod 755 $(PREFIX)/bin/chip8asm
 	mkdir -p /usr/share/chip8asm
 	cp -f resources/beep.wav /usr/share/chip8asm
-
+	sed "s/VERSION/$(VERSION)/g" < chip8asm.1 > $(MANPREFIX)/man1/chip8asm.1
+	chmod 644 $(MANPREFIX)/man1/chip8asm.1
 
 # Uninstall program
 uninstall:
