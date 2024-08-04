@@ -1,12 +1,11 @@
-x Add sound implementation @feature
 x Compress README.md logo
 x Create a install and uninstall option in the Makefile
-(A) Create install and uninstall documentation at the README.md
-(A) Check support at other Linux distributions.
+x Create install and uninstall documentation at the README.md
+x Check support at other Linux distributions.
 (A) Create a MAN page file.
-(A) Develop a graphical user interface for ROM selection. @usability
 (A) Create a wiki page to explaing each opcode implementation. @documentation
 (B) Add more comments at the .asm code. @documentation
-(B) Implement sound and timers in nasm instead of c.
-(C) Change cpu_keyboard to a 16-bit word instead of an 8-bit (boolean) array of 16 elements. 
-(D) Improve opcodes decodification. @bestpractice
+Develop a graphical user interface for ROM selection. @usability
+Implement sound and timers in nasm instead of c.
+Change cpu_keyboard to a 16-bit word instead of an 8-bit (boolean) array of 16 elements. 
+Improve opcodes decodification. @bestpractice
