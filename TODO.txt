@@ -3,8 +3,20 @@ x Create a install and uninstall option in the Makefile @feature
 x Create install and uninstall documentation at the README.md @documentation
 x Check support at other Linux distributions.
 x Create a MAN page file. @documentation
-(A) Add error catching
-(A) Add more comments at the .asm code. @documentation
+x Treat return with sp = 0 as an error. @nowerror
+
+(A) Add error catching @bestpractice
+(A) Fix some opcodes @bug
+(A) Update and pass all tests. @tests
+(B) Add more comments at the .asm code. @documentation
+(B) Refactor some of the .asm code for readability.
+(C) Update the MAN file. @release 
+(C) Update README with the new changes. @release
+(C) Add a table of contents to the README.md. @release
+(C) Update the CHANGELOG.md file. @release
+(C) Merge the dev and main branches. @release
+(C) Publish the version v3.0.0. @release
+
 Develop a graphical user interface for ROM selection. @usability
 Implement sound and timers in nasm instead of c.
 Change cpu_keyboard to a 16-bit word instead of an 8-bit (boolean) array of 16 elements. 
