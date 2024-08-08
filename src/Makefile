@@ -12,7 +12,7 @@ ASMFLAGS = -felf64
 CC = gcc
 
 # Compilation objects
-SRCS = main.asm load.asm memory.asm keys.asm cicle.asm display.asm
+SRCS = main.asm load.asm memory.asm keys.asm cicle.asm display.asm errors.asm
 OBJS = $(SRCS:.asm=.o)
 
 

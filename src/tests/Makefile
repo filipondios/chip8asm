@@ -47,16 +47,18 @@ readfileParam.o: readfileParam.asm
 # gcc -no-pie ./opcodes.o opcodesTests.o -o opcodesTests
 #rm *.o
 
-opcodes.test: opcodesTests.o opcodes.o
+opcodes.test: opcodesTests.o opcodes.o errors.o
 	$(CC) -g $(LDFLAGS) -o $@ $^
 	rm $(OBJ_FILES)
 
 opcodesTests.o: opcodesTests.c
 	$(CC) $(CFLAGS) -o $@ $<
 
-opcodes.o: ../opcodes.asm
+opcodes.o: ../opcodes.asm 
 	$(ASM) $(ASMFLAGS) $< -o $@
 
+errors.o: ../errors.asm 
+	$(ASM) $(ASMFLAGS) $< -o $@
 
 clean: 
 	rm -f $(TARGETS)

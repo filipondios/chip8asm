@@ -1,3 +1,4 @@
+;; Extern functions
 extern memset
 extern cpu_display
 extern cpu_ram
@@ -10,6 +11,11 @@ extern cpu_st
 extern cpu_pc
 extern cpu_sp
 extern cpu_error
+;; Errors
+extern RETURN_EMPTY_STACK
+extern STACK_OVERFLOW
+extern ACCESS_PRIV_MEMORY
+extern ACCESS_OUTB_MEMORY
 
 section .data
   SYS_WRITE    equ 1
@@ -17,10 +23,7 @@ section .data
   STD_OUT      equ 1
   EXIT_FAILURE equ 1
   PROG_BEGIN   equ 0x200
-  return_error:       db "Error: Return instruction with sp = 0.",10,0
-  jump_priv_error:    db "Error: Ilegal jump to interpreter memory section.",10,0
-  jump_out_error:     db "Error: Ilegal jump out of memory (> 0xfff).",10,0  
-  stack_overflow_msg: db "Error: A subroutine call caused stack overflow.",10,0 
+  STACK_TOP    equ 32 ;; (0xf*2)+2
 
 section .text
 
@@ -58,12 +61,7 @@ _ret:
   movzx rax, byte [cpu_sp]        ;; rax = cpu_sp
   cmp al, 0                       ;; cpu_sp == 0? -> exit. Else continue.
   jne cont_ret                    ;; If zero, exit the program.
-  mov rdi, STD_OUT                ;; rdi = STD_OUT (print message)
-  mov rsi, return_error           ;; rsi = error message
-  mov rdx, 39                     ;; rdx = strlen(message)
-  mov rax, SYS_WRITE              ;; rax = write syscall
-  syscall                         ;; write(STD_OUT, error_msg, sizeof(error_msg))
-  mov byte [cpu_error], 1         ;; Save error 
+  mov byte [cpu_error], RETURN_EMPTY_STACK ;; Save error 
   jmp end_ret                     ;; just end the function
 cont_ret:                         ;; This will only be executed if cpu_sp != 0
   sub al, 2                       ;; cpu_sp -= 2
@@ -85,15 +83,10 @@ _jp_addr:
   push rbp                        ;; The jump function sets the program counter 
   mov rbp, rsp                    ;; to a specific address (0x0-0xfff)
   ;; begin                        ;; ==========================================
-  cmp di, 0x200                   ;; Ilegal memory access where addr < 0x200?
+  cmp di, PROG_BEGIN              ;; Ilegal memory access where addr < 0x200?
   jge cont_jp                     ;; If not, continue. Else, exit(addr)
-  mov rdi, STD_OUT                ;; rdi = STD_OUT (print message)
-  mov rsi, jump_priv_error        ;; rsi = error message
-  mov rdx, 49                     ;; rdx = strlen(message)
-  mov rax, SYS_WRITE              ;; rax = write syscall
-  syscall                         ;; write(STD_OUT, jp_msg, strlen(jp_msg))
-  mov word [cpu_error], 1         ;; Note a error has occurred
-  jp end_jp                       ;; Skip code
+  mov byte [cpu_error], ACCESS_PRIV_MEMORY ;; Note a error has occurred
+  jmp end_jp                      ;; Skip code
 cont_jp:                          ;; Only if rdi >= 0x200
   mov word [cpu_pc], di           ;; update pc = rdi = addr 
 end_jp:
@@ -110,24 +103,16 @@ _call_addr:
   push rbp                        ;; Sets the program counter to an address,
   mov rbp, rsp                    ;; saving the current pc at the top of the stack
   ;; begin                        ;; ==========================================
-  movzx rdx, byte [cpu_sp]        ;; rdx = cpu_sp
-  cmp dx, 0xf                     ;; Is the sp pointing inside the stack?
-  jle cont_call                   ;; If it is, continue. Else stack overflow error 
-  mov rdi, STD_OUT                ;; rdi = STD_OUT (print message)
-  mov rsi, stack_overflow_msg     ;; rsi = error message
-  mov rdx, 44                     ;; rdx = strlen(message)
-  mov rax, SYS_WRITE              ;; rax = write syscall
-  syscall                         ;; print error
+  mov dl, byte [cpu_sp]           ;; rdx = cpu_sp
+  cmp dl, STACK_TOP               ;; Is the sp pointing inside the stack?
+  jl cont_call                    ;; If it is, continue. Else stack overflow error 
+  mov byte [cpu_error], STACK_OVERFLOW ;; Note the error
   jmp end_call                    ;; end function
 cont_call:                        ;; Only if the sp is pointing inside the stack
   cmp di, PROG_BEGIN              ;; nnn < 0x200?
   jge just_call                   ;; If greater or equal continue. Else error.
-  mov rdi, STD_OUT                ;; rdi = STD_OUT (print message)
-  mov rsi, jump_priv_error        ;; rsi = error message
-  mov rdx, 44                     ;; rdx = strlen(message)
-  mov rax, SYS_WRITE              ;; rax = write syscall
-  syscall                         ;; print error
-  jp end_call                     ;; end function
+  mov byte [cpu_error], ACCESS_PRIV_MEMORY ;; Note the error
+  jmp end_call                    ;; end function
 just_call:                        ;; Only if the call is legal
   mov ax, word [cpu_pc]           ;; ax = pc
   mov word [cpu_stack + rdx], ax  ;; stack[sp] = ax = pc
@@ -168,17 +153,17 @@ end_3xkk:                         ;; Inconditional
 ;; rsi = byte
 global _sne_vx_byte
 _sne_vx_byte:
-  push rbp
-  mov rbp, rsp
-  ;; begin
-  mov al, byte [cpu_v + rdi]
-  mov dx, word [cpu_pc]
-  cmp al, sil
-  je end_4xkk 
-  add dx, 2
-end_4xkk:
-  add dx, 2
-  mov word [cpu_pc], dx
+  push rbp                        ;; This function skips the next instruction
+  mov rbp, rsp                    ;; (pc += 4) if v[x] != byte. Else (pc += 2)
+  ;; begin                        ;; =========================================
+  mov al, byte [cpu_v + rdi]      ;; al = v[x]
+  mov dx, word [cpu_pc]           ;; dx = pc
+  cmp al, sil                     ;; v[x] != byte?
+  je end_4xkk                     ;; if it is, do pc += 2 now
+  add dx, 2                       ;; pc += 2
+end_4xkk:                         ;; Inconditional
+  add dx, 2                       ;; pc += 2
+  mov word [cpu_pc], dx           ;; update pc
   ;; end
   leave
   ret
@@ -190,20 +175,18 @@ end_4xkk:
 ;; rsi = y
 global _se_vx_vy
 _se_vx_vy:
-  push rbp
-  mov rbp, rsp
-  ;; begin
-  mov rax, cpu_v
-  add rax, rsi
-  mov dl, byte [cpu_v + rdi]
-  mov al, byte [cpu_v + rsi]
-  mov bx, word [cpu_pc]
-  cmp dl, al 
-  jne end_5xy0
-  add bx, 2
-end_5xy0:
-  add bx, 2
-  mov word [cpu_pc], bx
+  push rbp                        ;; This function skips the next instruction 
+  mov rbp, rsp                    ;; (pc += 4) if v[x] == v[y]. Else (pc += 2)
+  ;; begin                        ;; =========================================
+  mov dl, byte [cpu_v + rdi]      ;; dl = v[x]
+  mov al, byte [cpu_v + rsi]      ;; al = v[y]
+  mov bx, word [cpu_pc]           ;; bx = pc
+  cmp dl, al                      ;; v[x] == v[y]?
+  jne end_5xy0                    ;; if it is, do pc += 2 now
+  add bx, 2                       ;; pc += 2
+end_5xy0:                         ;; Inconditional 
+  add bx, 2                       ;; pc += 2
+  mov word [cpu_pc], bx           ;; update pc
   ;; end
   leave
   ret

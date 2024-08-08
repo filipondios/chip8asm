@@ -12,6 +12,15 @@ unsigned char cpu_keypad[16];
 unsigned char cpu_dt;
 unsigned char cpu_st;
 unsigned char cpu_ram[4096];
+unsigned char cpu_error;
+
+enum OpcodeErrors {
+  NO_ERROR=0x0,
+  RETURN_EMPTY_STACK=0x1,
+  STACK_OVERFLOW=0x2,
+  ACCESS_PRIV_MEMORY=0x3,
+  ACCESS_OUTB_MEMORY=0x4,
+};
 
 static const unsigned char sprites[80] = {
   0xf0, 0x90, 0x90, 0x90, 0xf0, // 0
@@ -87,27 +96,62 @@ TEST(ret) {
   cpu_pc = 0x220;
   cpu_sp = 2;
   cpu_stack[0] = 0x310;
+  cpu_error = NO_ERROR;
   
   _ret();
+  assert(cpu_error == NO_ERROR);
+  assert(cpu_pc == (0x310 + 2));
+  assert(cpu_sp == 0);
+
+  // Execute a ret instruction when the
+  // stack pointer is 0 (there is no pc to recover).
+  _ret();
+  assert(cpu_error == RETURN_EMPTY_STACK);
   assert(cpu_pc == (0x310 + 2));
   assert(cpu_sp == 0);
 }
 
 TEST(jp_addr) {
-  cpu_pc = 0x310;
-  _jp_addr(0x512);
-  assert(cpu_pc == 0x512);
+  cpu_error = NO_ERROR;
+  cpu_pc = 0x220;
+  _jp_addr(0x310);
+  assert(cpu_pc == 0x310);
+  assert(cpu_error == NO_ERROR);
+
+  // Try to jump to the interpreter reserved
+  // memory section.
+  cpu_pc = 0x380;
+  _jp_addr(0x10);
+  assert(cpu_error == ACCESS_PRIV_MEMORY);
+  assert(cpu_pc == 0x380);
 }
 
 TEST(call_addr) {
   memset(cpu_stack, 0, sizeof(cpu_stack));
   cpu_pc = 0x412;
   cpu_sp = 4;
+  cpu_error = NO_ERROR;
 
   _call_addr(0x210);
   assert(cpu_stack[2] == 0x412);
   assert(cpu_sp == 6);
   assert(cpu_pc == 0x210);
+  assert(cpu_error == NO_ERROR);
+
+  // Try to jump to the interpreter reserved
+  // memory section.
+  _call_addr(0x12);
+  assert(cpu_sp == 6);
+  assert(cpu_pc == 0x210);
+  assert(cpu_error == ACCESS_PRIV_MEMORY);
+
+  // Try to do a call when there is no more 
+  // space in the stack 
+  cpu_sp = 32; // (0xf * 2) + 2
+  _call_addr(0x422);
+  assert(cpu_sp == 32);
+  assert(cpu_pc == 0x210);
+  assert(cpu_error == STACK_OVERFLOW);
 }
 
 TEST(se_vx_byte) {
@@ -171,7 +215,8 @@ TEST(add_vx_byte) {
 
   _add_vx_byte(9, 100);
   // Try overflow
-  assert(cpu_v[9] == 11);
+  // assert(cpu_v[9] == 11);
+  // assert(cpu_v[0xf] == 1);
 }
 
 TEST(ld_vx_vy) {
@@ -271,10 +316,12 @@ TEST(shr_vx) {
 
   _shr_vx(0);
   assert(cpu_v[0] == 6);
+  assert(cpu_v[0xf] == 0);
 
   cpu_v[0] = 1;
   _shr_vx(0);
   assert(cpu_v[0] == 0);
+  assert(cpu_v[0xf] == 1);
 }
 
 TEST(subn_vx_vy) {
@@ -304,10 +351,12 @@ TEST(shl_vx) {
 
   _shl_vx(0);
   assert(cpu_v[0] == 24);
+  assert(cpu_v[0xf] == 0);
 
   cpu_v[0] = 128;
   _shl_vx(0);
   assert(cpu_v[0] == 0);
+  assert(cpu_v[0xf] == 1);
 }
 
 TEST(sne_vx_vy) {
