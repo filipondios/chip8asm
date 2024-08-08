@@ -1,10 +1,10 @@
-x Compress README.md logo
-x Create a install and uninstall option in the Makefile
-x Create install and uninstall documentation at the README.md
+x Compress README.md logo @optimization
+x Create a install and uninstall option in the Makefile @feature
+x Create install and uninstall documentation at the README.md @documentation
 x Check support at other Linux distributions.
-x Create a MAN page file.
-(A) Create a wiki page to explaing each opcode implementation. @documentation
-(B) Add more comments at the .asm code. @documentation
+x Create a MAN page file. @documentation
+(A) Add error catching
+(A) Add more comments at the .asm code. @documentation
 Develop a graphical user interface for ROM selection. @usability
 Implement sound and timers in nasm instead of c.
 Change cpu_keyboard to a 16-bit word instead of an 8-bit (boolean) array of 16 elements. 

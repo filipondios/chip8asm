@@ -10,6 +10,7 @@ global cpu_pc
 global cpu_sp
 global cpu_draw
 global sprites
+global cpu_error
 
 section .data
   ;; Processor features
@@ -23,6 +24,7 @@ section .data
   cpu_st:   db 0x0               ;; Sound Timer
   cpu_pc:   dw 0x200             ;; Program counter
   cpu_sp:   db 0x0               ;; Stack pointer (sp is a keyword)
+  cpu_error db 0x0               ;; Runtime error code
 
   ;; Graphics display characters (0x0 - 0xF)
   sprites:  db 0xF0, 0x90, 0x90, 0x90, 0xF0 ;; 0
