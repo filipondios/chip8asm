@@ -1,4 +1,4 @@
-extern cpu_ram
+extern cpu_memory
 extern printf
   
 section .data
@@ -56,7 +56,7 @@ _load:
 
   ;; read syscall(0)
   mov rdi, rax
-  mov rsi, cpu_ram
+  mov rsi, cpu_memory
   add rsi, PROG_BEGIN
   mov rdx, READ_BYTES
   mov rax, SYS_READ

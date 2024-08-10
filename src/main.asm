@@ -18,7 +18,7 @@ extern _load
 extern _exec_cicle
 extern _get_keys
 extern _draw_display
-extern cpu_ram
+extern cpu_memory
 extern sprites
 extern cpu_dt
 extern cpu_st
@@ -54,7 +54,7 @@ main:
   call _load
 
   ;; Init RAM
-  mov rdi, cpu_ram
+  mov rdi, cpu_memory
   mov rsi, sprites
   mov rdx, 80
   call memcpy

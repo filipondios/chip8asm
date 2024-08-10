@@ -14,9 +14,9 @@ _exec_cicle:
   ;; begin
   ;; Fetch next instruction
   movzx rbx, word [cpu_pc]
-  movzx rax, byte [cpu_ram + rbx]
+  movzx rax, byte [cpu_memory + rbx]
   inc rbx
-  movzx rcx, byte [cpu_ram + rbx]
+  movzx rcx, byte [cpu_memory + rbx]
   shl rax, 8
   or  rax, rcx
 

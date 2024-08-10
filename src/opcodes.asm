@@ -1,7 +1,7 @@
 ;; Extern functions
 extern memset
 extern cpu_display
-extern cpu_ram
+extern cpu_memory
 extern cpu_stack
 extern cpu_v
 extern cpu_keypad
@@ -538,7 +538,7 @@ drw_it_loop:
   ;; saved at [rsp-4]
   movzx rdi, byte [rbp-3]
   movzx rsi, word [cpu_i]
-  movzx rsi, byte [rsi + rdi + cpu_ram]
+  movzx rsi, byte [rsi + rdi + cpu_memory]
   mov byte [rbp-4], sil
 
   ;; Calculate y_wrap coordinate
@@ -788,7 +788,7 @@ _ld_b_vx:
   mov rcx, 100  
   div cl       
   movzx rbx, word [cpu_i]
-  mov [cpu_ram + rbx], al
+  mov [cpu_memory + rbx], al
   ;; Tens
   mov rax, rsi
   mov rcx, 10
@@ -796,7 +796,7 @@ _ld_b_vx:
   and rax, 0xFF
   div cl
   add rbx, 1
-  mov [cpu_ram + rbx], ah  
+  mov [cpu_memory + rbx], ah  
   ;; Units
   mov rax, rsi
   mov rcx, 100
@@ -806,7 +806,7 @@ _ld_b_vx:
   mov rcx, 10
   div cl
   add rbx, 1
-  mov [cpu_ram + rbx], ah
+  mov [cpu_memory + rbx], ah
   INC_PC
   ;; end
   leave
@@ -825,7 +825,7 @@ _ld_i_vx:
   xor rdx, rdx 
 loop_fx55:
   mov al, byte [cpu_v + rdx]
-  mov byte [cpu_ram + rsi + rdx], al
+  mov byte [cpu_memory + rsi + rdx], al
   inc dl
   cmp dl, dil
   jle loop_fx55
@@ -849,7 +849,7 @@ _ld_vx_i:
   movzx rsi, word [cpu_i]
   xor rdx, rdx
 loop_fx65:
-  mov al, byte [cpu_ram + rsi + rdx]
+  mov al, byte [cpu_memory + rsi + rdx]
   mov byte [cpu_v + rdx], al
   inc dl
   cmp dl, dil

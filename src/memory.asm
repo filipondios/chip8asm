@@ -1,5 +1,5 @@
 global cpu_display
-global cpu_ram 
+global cpu_memory 
 global cpu_stack
 global cpu_v
 global cpu_keypad 
@@ -15,7 +15,7 @@ global cpu_error
 section .data
   ;; Processor features
   cpu_display: times 2048 db 0x0 ;; Display Buffer
-  cpu_ram:     times 4096 db 0x0 ;; Chip8 Memory
+  cpu_memory:  times 4096 db 0x0 ;; Chip8 Memory
   cpu_stack:   times 16   dw 0x0 ;; Processor stack
   cpu_v:       times 16   db 0x0 ;; Vx Registers (x[0..F])
   cpu_keypad:  times 16   db 0x0 ;; Keypad keys 

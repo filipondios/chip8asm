@@ -11,7 +11,7 @@ unsigned short cpu_i;
 unsigned char cpu_keypad[16];
 unsigned char cpu_dt;
 unsigned char cpu_st;
-unsigned char cpu_ram[4096];
+unsigned char cpu_memory[4096];
 unsigned char cpu_error;
 
 enum OpcodeErrors {
@@ -417,7 +417,7 @@ TEST(rnd_vx_byte) {
 }
 
 TEST(drw_vx_vy_nibble) {
-  memcpy(cpu_ram, sprites, sizeof(sprites));
+  memcpy(cpu_memory, sprites, sizeof(sprites));
   memset(cpu_v, 0, sizeof(cpu_v));
   cpu_pc = 0x222;
   cpu_i = 0x0;
@@ -552,40 +552,40 @@ TEST(ld_f_vx) {
 
 TEST(ld_b_vx) {
   memset(cpu_v, 0, sizeof(cpu_v));
-  memset(cpu_ram, 0, sizeof(cpu_ram));
+  memset(cpu_memory, 0, sizeof(cpu_memory));
   cpu_v[2] = 123;
   cpu_pc = 0x452;
   cpu_i = 258;
 
   _ld_b_vx(2);
-  assert(cpu_ram[258] == 1);
-  assert(cpu_ram[259] == 2);
-  assert(cpu_ram[260] == 3);
+  assert(cpu_memory[258] == 1);
+  assert(cpu_memory[259] == 2);
+  assert(cpu_memory[260] == 3);
   assert(cpu_pc == (0x452 + 2));
 }
 
 TEST(ld_i_vx) {
   memset(cpu_v, 0, sizeof(cpu_v));
-  memset(cpu_ram, 0, sizeof(cpu_ram));
+  memset(cpu_memory, 0, sizeof(cpu_memory));
   cpu_i = 0x212;
   
   for (int i = 0x212, j =0; i <= 0x212+5; i++, j++)
-    cpu_ram[i] = j;  
+    cpu_memory[i] = j;  
 
   _ld_i_vx(5);
-  assert(memcmp(cpu_v, cpu_ram+0x212, 5) == 0);
+  assert(memcmp(cpu_v, cpu_memory+0x212, 5) == 0);
 }
 
 TEST(ld_vx_i) {
   memset(cpu_v, 0, sizeof(cpu_v));
-  memset(cpu_ram, 0, sizeof(cpu_ram));
+  memset(cpu_memory, 0, sizeof(cpu_memory));
   cpu_i = 0x290;
   
   for (int i = 0; i < 5; i++)
     cpu_v[i] = i;  
 
   _ld_vx_i(5);
-  assert(memcmp(cpu_v, cpu_ram+0x290, 5) == 0);
+  assert(memcmp(cpu_v, cpu_memory+0x290, 5) == 0);
 }
 
 int main() {
