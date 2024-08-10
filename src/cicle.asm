@@ -155,7 +155,7 @@ maybe_8xy5:
 maybe_8xy6:
   cmp bl, 0x6
   jne maybe_8xy7
-  call _shr_vx
+  call _shr_vx_vy
   jmp finish
 maybe_8xy7:
   cmp bl, 0x7
@@ -165,7 +165,7 @@ maybe_8xy7:
 maybe_8xye:
   cmp bl, 0xe
   jne opcode_error
-  call _shl_vx
+  call _shl_vx_vy
   jmp finish
 
 maybe_0x9:

@@ -56,9 +56,9 @@ extern void _and_vx_vy(unsigned char, unsigned char);
 extern void _xor_vx_vy(unsigned char, unsigned char);
 extern void _add_vx_vy(unsigned char, unsigned char);
 extern void _sub_vx_vy(unsigned char, unsigned char);
-extern void _shr_vx(unsigned char);
+extern void _shr_vx_vy(unsigned char, unsigned char);
 extern void _subn_vx_vy(unsigned char, unsigned char);
-extern void _shl_vx(unsigned char);
+extern void _shl_vx_vy(unsigned char, unsigned char);
 extern void _sne_vx_vy(unsigned char, unsigned char);
 extern void _ld_i_addr(unsigned short);
 extern void _jp_v0_addr(unsigned short);
@@ -298,7 +298,7 @@ TEST(sub_vx_vy) {
   _sub_vx_vy(0, 1);
   // Try overflow
   assert(cpu_v[0] == (unsigned char)(89-200));
-  assert(cpu_v[0xf] == 1);
+  assert(cpu_v[0xf] == 0);
   assert(cpu_pc == (0x422 + 2));
 
   cpu_v[0] = 55;
@@ -306,20 +306,22 @@ TEST(sub_vx_vy) {
 
   _sub_vx_vy(0, 1);
   assert(cpu_v[0] == 41);
-  assert(cpu_v[0xf] == 0);
+  assert(cpu_v[0xf] == 1);
 }
 
 TEST(shr_vx) {
   memset(cpu_v, 0, sizeof(cpu_v));
   cpu_pc = 0x232;
-  cpu_v[0] = 12;
+  cpu_v[0] = 32;
+  cpu_v[1] = 12;
 
-  _shr_vx(0);
+  _shr_vx_vy(0,1);
   assert(cpu_v[0] == 6);
   assert(cpu_v[0xf] == 0);
 
-  cpu_v[0] = 1;
-  _shr_vx(0);
+  cpu_v[0] = 72;
+  cpu_v[1] = 1;
+  _shr_vx_vy(0,1);
   assert(cpu_v[0] == 0);
   assert(cpu_v[0xf] == 1);
 }
@@ -347,14 +349,16 @@ TEST(subn_vx_vy) {
 TEST(shl_vx) {
   memset(cpu_v, 0, sizeof(cpu_v));
   cpu_pc = 0x232;
-  cpu_v[0] = 12;
+  cpu_v[0] = 98;
+  cpu_v[1] = 12;
 
-  _shl_vx(0);
+  _shl_vx_vy(0,1);
   assert(cpu_v[0] == 24);
   assert(cpu_v[0xf] == 0);
 
-  cpu_v[0] = 128;
-  _shl_vx(0);
+  cpu_v[0] = 66;
+  cpu_v[1] = 128;
+  _shl_vx_vy(0,1);
   assert(cpu_v[0] == 0);
   assert(cpu_v[0xf] == 1);
 }
@@ -386,9 +390,21 @@ TEST(jp_v0_addr) {
   memset(cpu_v, 0, sizeof(cpu_v));
   cpu_v[0] = 12;
   cpu_pc = 0x204;
+  cpu_error = NO_ERROR;
 
   _jp_v0_addr(0x212);
   assert(cpu_pc == (0x212 + 12));
+  assert(cpu_error == NO_ERROR);
+
+  // Jump to interpreter memory
+  _jp_v0_addr(0x2);
+  assert(cpu_pc == (0x212 + 12));
+  assert(cpu_error == ACCESS_PRIV_MEMORY);
+
+  // Jump out of memory
+  _jp_v0_addr(0xfff);
+  assert(cpu_pc == (0x212 + 12));
+  assert(cpu_error == ACCESS_OUTB_MEMORY);
 }
 
 TEST(rnd_vx_byte) {
