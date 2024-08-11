@@ -1,9 +1,4 @@
 %include "opcodes.asm"
-extern printf
-extern _drw_vx_vy_nibble
-
-section .data
-  opcode_msg: db "Found an unknown opcode: %04x",10,0 
 
 section .text
 global _exec_cicle
@@ -299,12 +294,6 @@ finish:
   ret
 
 opcode_error:
-  ;; Print & exit
-  mov rdi, opcode_msg
-  mov rsi, rax
-  mov rax, 0
-  call printf
-
-  mov rdi, 0
-  mov rax, 60
-  syscall
+  ;; Save error code
+  mov byte [cpu_error], UNKNOWN_OPCODE
+  jmp finish

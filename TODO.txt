@@ -7,12 +7,11 @@ x Treat return with sp = 0 as an error. @nowerror
 x Fix opcode sub_vx_vy carry
 x Fix _shr_vx_vy 
 x Fix _shl_vx_xy
+x Add error catching @bestpractice
+x Update and pass all tests. @tests
+x Add more comments at the .asm code. @documentation
+x Refactor some of the .asm code for readability.
 
-(A) Add error catching @bestpractice
-(A) Fix some opcodes @bug
-(A) Update and pass all tests. @tests
-(B) Add more comments at the .asm code. @documentation
-(B) Refactor some of the .asm code for readability.
 (C) Update the MAN file. @release 
 (C) Update README with the new changes. @release
 (C) Add a table of contents to the README.md. @release
