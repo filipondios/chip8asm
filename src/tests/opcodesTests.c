@@ -20,6 +20,7 @@ enum OpcodeErrors {
   STACK_OVERFLOW=0x2,
   ACCESS_PRIV_MEMORY=0x3,
   ACCESS_OUTB_MEMORY=0x4,
+  ACCESS_OUTB_REG=0x5
 };
 
 static const unsigned char sprites[80] = {
@@ -567,25 +568,88 @@ TEST(ld_b_vx) {
 TEST(ld_i_vx) {
   memset(cpu_v, 0, sizeof(cpu_v));
   memset(cpu_memory, 0, sizeof(cpu_memory));
-  cpu_i = 0x212;
+  cpu_error = NO_ERROR;
+  cpu_pc = 0x422;
+  cpu_i = 0xfff;
   
-  for (int i = 0x212, j =0; i <= 0x212+5; i++, j++)
-    cpu_memory[i] = j;  
+  _ld_i_vx(10);
+  assert(cpu_error == ACCESS_OUTB_MEMORY);
+  assert(cpu_pc == 0x422);
+  assert(cpu_i == 0xfff);
 
-  _ld_i_vx(5);
-  assert(memcmp(cpu_v, cpu_memory+0x212, 5) == 0);
+  cpu_i = 0x12;
+  _ld_i_vx(15);
+  assert(cpu_error == ACCESS_PRIV_MEMORY);
+  assert(cpu_pc == 0x422);
+  assert(cpu_i == 0x12);
+
+  cpu_i = 0x212;
+  _ld_i_vx(16);
+  assert(cpu_error == ACCESS_OUTB_REG);
+  assert(cpu_pc == 0x422);
+  assert(cpu_i == 0x212);
+
+  cpu_error = NO_ERROR;
+  for(int i=0; i<=0xf; i++)
+    cpu_v[i] = i;
+  
+  _ld_i_vx(15);
+  assert(cpu_error == NO_ERROR);
+  assert(cpu_pc == (0x422 + 2));
+  assert(cpu_i == (0x212 + 15 + 1));
+  for(int i=0x212, j=0; i<=0x212+15; i++,j++)
+    assert(cpu_memory[i] == j);
 }
 
 TEST(ld_vx_i) {
   memset(cpu_v, 0, sizeof(cpu_v));
   memset(cpu_memory, 0, sizeof(cpu_memory));
-  cpu_i = 0x290;
   
-  for (int i = 0; i < 5; i++)
-    cpu_v[i] = i;  
+  // We CANT access memory with addresses
+  // greater than 0xfff
+  cpu_error = NO_ERROR;
+  cpu_pc = 0x422;
+  cpu_i = 0xfff;
+  
+  _ld_vx_i(10);
+  assert(cpu_error == ACCESS_OUTB_MEMORY);
+  assert(cpu_pc == 0x422);
+  assert(cpu_i == 0xfff);
 
-  _ld_vx_i(5);
-  assert(memcmp(cpu_v, cpu_memory+0x290, 5) == 0);
+  // We CAN READ the interpreter memory.
+  // no error expected
+  cpu_error = NO_ERROR;
+  cpu_i = 0x12;
+  for(int i=0; i<=0xf; i++)
+    cpu_memory[cpu_i+ i] = i;
+
+  _ld_vx_i(15);
+  assert(cpu_error == NO_ERROR);
+  assert(cpu_pc == (0x422 + 2));
+  assert(cpu_i == (0x12 + 15 + 1));
+  assert(memcmp(cpu_memory+0x12, cpu_v, 15) == 0);
+
+  // We CANT WRITE in a register with 
+  // index > 0xf 
+  cpu_pc = 0x422;
+  cpu_i = 0x212;
+  _ld_vx_i(16);
+  assert(cpu_error == ACCESS_OUTB_REG);
+  assert(cpu_pc == 0x422);
+  assert(cpu_i == 0x212);
+
+  // We CAN READ memory with addresses 
+  // < 0xfff
+  memset(cpu_memory, 0, sizeof(cpu_memory));
+  cpu_error = NO_ERROR;
+  for(int i=0; i<=0xf; i++)
+    cpu_memory[cpu_i + i] = i;
+  
+  _ld_i_vx(15);
+  assert(cpu_error == NO_ERROR);
+  assert(cpu_pc == (0x422 + 2));
+  assert(cpu_i == (0x212 + 15 + 1));
+  assert(memcmp(cpu_memory+0x212, cpu_v, 15) == 0);
 }
 
 int main() {
