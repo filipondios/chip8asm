@@ -1,4 +1,5 @@
 %include "opcodes.asm"
+extern UNKNOWN_OPCODE
 
 section .text
 global _exec_cicle
