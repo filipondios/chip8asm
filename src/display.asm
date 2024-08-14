@@ -1,5 +1,6 @@
 extern DrawRectangle
 extern cpu_display
+extern scale
 
 section .data 
   BLACK db 0, 0, 0, 255
@@ -11,8 +12,6 @@ _draw_display:
   push rbp
   mov rbp, rsp
   sub rsp, 16
-
-  mov r10, 0
   mov dword [rbp-4], 0
 
 loop_start:
@@ -24,16 +23,17 @@ loop_start:
   test al, al
   je next_iteration
 
-  ;; get (it/64)*30
+  ;; get (it/64)*scale
+  mov r10d, dword [scale]
   mov eax, dword [rbp-4]
   mov edx, eax
-  shr edx, 6        
-  imul edx, edx, 30
+  shr edx, 6
+  imul edx, r10d
 
-  ;; get (it%64)*30
+  ;; get (it%64)*scale
   mov ecx, eax
   and ecx, 63
-  imul ecx, ecx, 30
+  imul ecx, r10d
 
   movzx eax, byte [cpu_display + rax]
   cmp al, 0
@@ -46,8 +46,8 @@ pixel_zero:
 draw_pixel:
   mov edi, ecx
   mov esi, edx
-  mov edx, 30
-  mov ecx, 30
+  mov edx, r10d
+  mov ecx, r10d
   call DrawRectangle
 
 next_iteration:

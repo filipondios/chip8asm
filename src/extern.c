@@ -22,6 +22,7 @@ extern unsigned char cpu_sp;
 extern unsigned char cpu_dt;
 extern unsigned char cpu_st;
 extern unsigned int win_fps;
+int scale = 1;
 double updateCounter = 0;
 Sound beep_sound;
 
@@ -66,7 +67,6 @@ void adaptScaleToScreen(void) {
   const int monitor = GetCurrentMonitor();
   const int m_width = GetMonitorWidth(monitor);
   const int m_height = GetMonitorHeight(monitor);
-  int scale = 1;
   
   // Adjust the scale to fit the half
   // of the screen.
