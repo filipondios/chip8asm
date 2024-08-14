@@ -29,17 +29,18 @@ while preserving the essence of the original.
 ## Features
 
 This interpreter is based on well-documented references, such as 
-[Cowgod's Chip-8 Technical Reference] and [Mastering CHIP-8]. In addition to 
-faithfully reproducing the CHIP-8 instruction set, several enhancements have 
-been made to improve performance:
+[Cowgod's Chip-8 Technical Reference] and [Mastering CHIP-8]. For testing, 
+several [test files] have been created for the basic functionality of the
+iterpreter and the opcodes. In addition, we have run and passed all the 
+tests of the [chip8-test-suite], which do a more exhaustive testing of the
+opcodes.
 
-- **Program termination**: If the stack pointer is at 0 (bottom of the stack) 
-and a return operation is executed, the program terminates.
+Also, a few enhancements have been made to provide a better experience:
 
-- **Timing**: Raylib has been configured to aim for 60 cycles of the main loop
-per second. This ensures that timers update at their correct frequency (60Hz), 
-though more instructions per second are executed compared to an original CHIP-8 
-machine, offering a smoother experience.
+- **Timing**: Raylib has been configured to aim for 200 FPS, which means that
+200 instructions are executed per second, but also managing to update timers
+update at their correct frequency (60Hz). This is done with the intention of
+providing a smoother user experience.
 
 - **Sound**: This interpreter has sound support for programs that use the delay
 timer to play the CHIP-8 *beep* sound. This sound has been generated thanks to
@@ -58,16 +59,12 @@ interpreter. Some sources for ROMs are:
 - [chipo](https://chipo.ber.gp)
 - [johnearnest/chip8Archive](https://johnearnest.github.io/chip8Archive)
 
-> [!WARNING]  
-> Some ROMs from this sites can contain null codes (0x0000) or other unknown 
-> ones that for some reason don't exist in any of the references and people 
-> count with them. This might cause the program to crash or to freeze itself.
-
 To run a ROM, use the following command, where the parameter is the path to
 the ROM file:
 
 ```bash
-chip8asm some/directory/to/rom
+./chip8asm some/path/to/rom # Relative path (not installed)
+chip8asm some/path/to/rom   # Global path (installed)
 ```
 
 > [!IMPORTANT]
@@ -143,6 +140,8 @@ also be made available under GPL v3.
 
 [Cowgod's Chip-8 Technical Reference]: http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#0.1
 [Mastering CHIP-8]: https://github.com/mattmikolay/chip-8/wiki/Mastering-CHIP%E2%80%908
+[test files]: src/tests
+[chip8-test-suite]: https://github.com/Timendus/chip8-test-suite
 [onlinetonegenerator.com]: https://onlinetonegenerator.com
 [executable]: bin/chip8asm
 [releases page]: https://github.com/dpv927/chip8asm/releases
