@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2024-08-14
+
+### Added
+
+- Install and uninstall options in the Makefile.
+- Create a MAN page file.
+- Support for other Linux distributions with older GLIBC versions.
+- Opcodes error handling.
+- Better documentation in the code.
+- Function to adapt the window size to the user's screen resolution.
+
+### Changed
+
+- Function to separate the cicles per second and the timers update.
+
+### Fixed
+
+- Opcodes 8xy4, 8xy5, 8xy6, 8xy7, 8xye: vf now can be used as the vx input.
+
 ## [2.0.0] - 2024-08-02
 
 ### Added

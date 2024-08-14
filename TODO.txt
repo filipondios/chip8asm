@@ -1,32 +1,4 @@
-x Compress README.md logo @optimization
-x Create a install and uninstall option in the Makefile @feature
-x Create install and uninstall documentation at the README.md @documentation
-x Check support at other Linux distributions.
-x Create a MAN page file. @documentation
-x Treat return with sp = 0 as an error. @nowerror
-x Fix opcode sub_vx_vy carry
-x Fix _shr_vx_vy 
-x Fix _shl_vx_xy
-x Add error catching @bestpractice
-x Update and pass all tests. @tests
-x Add more comments at the .asm code. @documentation
-x Refactor some of the .asm code for readability.
-x Fix opcode 8xy4: vf can be used as the vx input 
-x Fix opcode 8xy5: vf can be used as the vx input 
-x Fix opcode 8xy6: vf can be used as the vy input
-x Fix opcode 8xy7: vf can be used as the vx input 
-x Fix opcode 8xye: vf can be used as the vx input 
-x Adapt window size to the half of the user screen.
-x Upgrade timers update so the timers can update at 60Hz and the window to other rate.
-x Update the MAN file. @release 
-
-(C) Update README with the new changes. @release
-(C) Add a table of contents to the README.md. @release
-(C) Update the CHANGELOG.md file. @release
-(C) Merge the dev and main branches. @release
-(C) Publish the version v3.0.0. @release
-
-Develop a graphical user interface for ROM selection. @usability
-Implement sound and timers in nasm instead of c.
-Change cpu_keyboard to a 16-bit word instead of an 8-bit (boolean) array of 16 elements. 
-Improve opcodes decodification. @bestpractice
+(A) Develop a graphical user interface for ROM selection. @usability
+(B) Implement sound and timers in nasm instead of c.
+(B) Change cpu_keyboard to a 16-bit word instead of an 8-bit (boolean) array of 16 elements. 
+Improve opcodes decodification.
