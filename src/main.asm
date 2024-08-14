@@ -40,7 +40,7 @@ section .data
   STD_OUT    equ 1
 
   ;; System variables
-  win_fps    dd 60
+  win_fps    dd 200
   arg_msg    db "Error: Incorrect number of arguments",10,0
   BLACK db 0, 0, 0, 255
 
