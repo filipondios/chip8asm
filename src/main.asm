@@ -11,8 +11,7 @@ extern memcpy
 extern adaptScaleToScreen
 extern loadBeepSound
 extern unloadBeepSound
-extern updateST
-extern updateDT
+extern updateTimers
 %ifdef DEBUG
 extern printMemory
 %endif
@@ -31,6 +30,8 @@ extern cpu_st
 extern cpu_pc
 ;; Errors
 extern NO_ERROR
+;; Export fps
+global win_fps
 
 
 section .data
@@ -113,8 +114,7 @@ continue_loop:
   ;; no errors
   call _exec_cicle
   call _get_keys
-	call updateDT
-	call updateST
+	call updateTimers
 
 main_loop_draw:
   ;; Draw the display

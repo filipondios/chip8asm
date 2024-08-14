@@ -1,4 +1,6 @@
+#include <float.h>
 #include <raylib.h>
+#include <time.h>
 
 #ifdef INSTALL
 /* This path is only used when the purpose of the 
@@ -19,6 +21,8 @@ extern unsigned char cpu_sp;
 #endif
 extern unsigned char cpu_dt;
 extern unsigned char cpu_st;
+extern unsigned int win_fps;
+double updateCounter = 0;
 Sound beep_sound;
 
 void loadBeepSound(void) {
@@ -36,22 +40,26 @@ void unloadBeepSound(void) {
   CloseAudioDevice();
 }
 
-void updateST(void) {
-  // Update sound timer
-  if(cpu_st) { 
-    cpu_st--;
-    if(!IsSoundPlaying(beep_sound))
-      PlaySound(beep_sound);
-  } else {
-    if(IsSoundPlaying(beep_sound))
-      StopSound(beep_sound);
-  }
-}
+void updateTimers(void) {
+  updateCounter++;
 
-void updateDT(void) {
-  // Update Delay Timer
-  if(cpu_dt > 0) 
-    cpu_dt--;	
+  // Try to update at a 60Hz rate
+  if(updateCounter >= (win_fps/60.0)){
+    // Update sound timer
+    if(cpu_st) { 
+      cpu_st--;
+      if(!IsSoundPlaying(beep_sound))
+        PlaySound(beep_sound);
+    } else {
+      if(IsSoundPlaying(beep_sound))
+        StopSound(beep_sound);
+    }
+    // Update Delay Timer
+    if(cpu_dt > 0) 
+      cpu_dt--;
+    // Reset counter
+    updateCounter = 0;
+  }
 }
 
 void adaptScaleToScreen(void) {
