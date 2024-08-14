@@ -6,16 +6,16 @@
 <h4 align="center">A <a href="https://en.wikipedia.org/wiki/CHIP-8">CHIP-8</a> interpreter written in x64 Linux <a href="https://www.nasm.us/">NASM</a> assembly and <a href="https://www.raylib.com/">Raylib</a></h4>
 
 <!-- Quick links -->
-<p align="center">
-  <a href="#about">About</a> •
-  <a href="#features">Features</a> •
-  <a href="#run">Run</a> •
-  <a href="#compile">Compile</a> •
-  <a href="#install">Install</a> •
-  <a href="#uninstall">Uninstall</a> •
-  <a href="#todo">TODO</a> •
-  <a href="#license">License</a>
-</p><br>
+## Table of contents
+
+- <a href="#about">Introduction</a>
+- <a href="#features">Features</a>
+- <a href="#run">Run</a>
+- <a href="#compile">Compile</a>
+- <a href="#install">Install</a>
+- <a href="#uninstall">Uninstall</a>
+- <a href="#todo">TODO</a>
+- <a href="#license">License</a>
 
 ## About
 
