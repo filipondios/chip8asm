@@ -54,6 +54,24 @@ void updateDT(void) {
     cpu_dt--;	
 }
 
+void adaptScaleToScreen(void) {
+  const int monitor = GetCurrentMonitor();
+  const int m_width = GetMonitorWidth(monitor);
+  const int m_height = GetMonitorHeight(monitor);
+  int scale = 1;
+  
+  // Adjust the scale to fit the half
+  // of the screen.
+  const int max_width = m_width >> 1;
+  while(scale * 64 < max_width)
+    scale++;
+  
+  // Set window the new scale and center it
+  int win_w, win_h;
+  SetWindowSize(win_w = 64 * scale, win_h = 32 * scale);
+  SetWindowPosition((m_width - win_w)/2, (m_height - win_h)/2);    
+}
+
 #ifdef DEBUG
 void printMemory(void) {
   printf("\n\nDisplay:\n");

@@ -1,6 +1,7 @@
 ;; Extern functions
 extern memset
 extern memcpy
+;; Cpu features
 extern cpu_display
 extern cpu_memory
 extern cpu_stack
@@ -20,10 +21,6 @@ extern ACCESS_OUTB_MEMORY
 extern ACCESS_OUTB_REG
 
 section .data
-  SYS_WRITE    equ 1
-  SYS_EXIT     equ 60
-  STD_OUT      equ 1
-  EXIT_FAILURE equ 1
   PROG_BEGIN   equ 0x200
   PROG_END     equ 0xfff
   STACK_TOP    equ 32
@@ -320,12 +317,13 @@ _add_vx_vy:
   mov al, byte [cpu_v + rsi]      ;; al = v[y]
   add dl, al                      ;; dl = v[x] + v[y]
   jnc ncarry_8xy4                 ;; If not carry, jump to v[0xf] = 0.
+  mov byte [cpu_v + rdi], dl      ;; set v[x] = v[x] + v[y]
   mov byte [cpu_v + 0xF], 1       ;; set v[0xf] = 1
   jmp end_8xy4                    ;; jump to the update
 ncarry_8xy4:                      ;; Only if there is no carry
+  mov byte [cpu_v + rdi], dl      ;; set v[x] = v[x] + v[y]
   mov byte [cpu_v + 0xF], 0       ;; set v[0xf] = 0
 end_8xy4:                         ;; Inconditional
-  mov byte [cpu_v + rdi], dl      ;; set v[x] = v[x] + v[y]
   INC_PC                          ;; pc += 2
   ;; end
   leave
@@ -345,12 +343,13 @@ _sub_vx_vy:
   mov al, byte [cpu_v + rsi]      ;; al = v[y]
   sub dl, al                      ;; dl = v[x] - v[y]
   jnc ncarry_8xy5                 ;; If not carry, jump to v[0xf] = 1
+  mov byte [cpu_v + rdi], dl      ;; update v[x] to v[x] - v[y]
   mov byte [cpu_v + 0xF], 0       ;; set v[0xf] = 0
   jmp end_8xy5                    ;; jump to update v[x]
 ncarry_8xy5:                      ;; Only if there is no carry
+  mov byte [cpu_v + rdi], dl      ;; update v[x] to v[x] - v[y]
   mov byte [cpu_v + 0xF], 1       ;; set v[0xf] = 1
 end_8xy5:                         ;; Inconditional
-  mov byte [cpu_v + rdi], dl      ;; update v[x] to v[x] - v[y]
   INC_PC                          ;; pc += 2
   ;; end
   leave
@@ -369,12 +368,13 @@ _shr_vx_vy:
   mov sil, byte [cpu_v + rsi]     ;; sil = v[y]
   shr sil, 1                      ;; sil = v[y] >> 1
   jnc noverflow_8xy6              ;; If no overflow, jump to v[0xf] = 0
+  mov [cpu_v + rdi], byte sil     ;; v[x] = (v[y] >> 1)
   mov byte [cpu_v + 0xF], 1       ;; v[0xf] = 1
   jmp end_8xy6                    ;; Just skip v[0xf] = 0
 noverflow_8xy6:                   ;; Only if no overflow
+  mov [cpu_v + rdi], byte sil     ;; v[x] = (v[y] >> 1)
   mov byte [cpu_v + 0xF], 0       ;; v[0xf] = 0
 end_8xy6:                         ;; Inconditional
-  mov [cpu_v + rdi], byte sil     ;; v[x] = (v[y] >> 1)
   INC_PC                          ;; pc += 2
   ;; end
   leave
@@ -394,12 +394,13 @@ _subn_vx_vy:
   mov al, byte [cpu_v + rsi]      ;; al = v[y]
   sub al, dl                      ;; al = v[y] -= v[x]
   jnc ncarry_8xy7                 ;; If no carry, jump to v[0xf] = 1
+  mov [cpu_v + rdi], byte al      ;; update v[x] to v[y] - v[x]
   mov byte [cpu_v + 0xF], 0       ;; v[0xf] = 0
   jmp end_8xy7                    ;; Skip v[0xf] = 1
 ncarry_8xy7:                      ;; Only if no carry
+  mov [cpu_v + rdi], byte al      ;; update v[x] to v[y] - v[x]
   mov byte [cpu_v + 0xF], 1       ;; v[0xf] = 1  
 end_8xy7:                         ;; Inconditional
-  mov [cpu_v + rdi], byte al      ;; update v[x] to v[y] - v[x]
   INC_PC                          ;; pc += 2
   ;; end
   leave
@@ -418,12 +419,13 @@ _shl_vx_vy:
   mov sil, byte [cpu_v + rsi]     ;; sil = v[y] 
   shl sil, 1                      ;; sil = v[y] << 1
   jnc noverflow_9xy6              ;; If no overflow, jump to v[0xf] = 0
+  mov [cpu_v + rdi], byte sil     ;; update v[x] to v[y] << 1
   mov byte [cpu_v + 0xF], 1       ;; v[0xf] = 1
   jmp end_9xy6                    ;; Skip v[0xf] = 0
 noverflow_9xy6:                   ;; Only if no carry
+  mov [cpu_v + rdi], byte sil     ;; update v[x] to v[y] << 1
   mov byte [cpu_v + 0xF], 0       ;; v[0xf] = 0
 end_9xy6:                         ;; Inconditional
-  mov [cpu_v + rdi], byte sil     ;; update v[x] to v[y] << 1
   INC_PC                          ;; pc += 2
   ;; end
   leave

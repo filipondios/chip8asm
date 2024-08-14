@@ -8,6 +8,7 @@ extern EndDrawing
 extern CloseWindow
 extern memcpy
 ;; Custom C functions
+extern adaptScaleToScreen
 extern loadBeepSound
 extern unloadBeepSound
 extern updateST
@@ -39,8 +40,6 @@ section .data
   STD_OUT    equ 1
 
   ;; System variables
-  win_width  dd 1920
-  win_height dd 960
   win_fps    dd 60
   arg_msg    db "Error: Incorrect number of arguments",10,0
   BLACK db 0, 0, 0, 255
@@ -56,37 +55,45 @@ main:
   cmp rdi, 2
   jne arg_error
   mov rbx, rsi
+
   ;; Load ROM
   xor rdi, rdi
   mov rdi, [rsi + 8]
   call _load
+  
   ;; Init RAM
   mov rdi, cpu_memory
   mov rsi, sprites
   mov rdx, 80
   call memcpy
+  
   ;; Create window
-  mov edi, [win_width]
-  mov esi, [win_height]
+  mov edi, 0
+  mov esi, 0
   mov rdx, [rbx + 8]
   call InitWindow
+  call adaptScaleToScreen
+  
   ;; Set FPS and 
   ;; load Audio
   mov edi, [win_fps]
   call SetTargetFPS
   call loadBeepSound
+
 main_loop:
   ;; Window should close?
   ;; Raylib call
   call WindowShouldClose
   cmp eax, 0
   jne main_loop_end
+
   ;; Only if debug is 
   ;; active, print the
   ;; cpu registers
   %ifdef DEBUG
   call printMemory
   %endif
+  
   ;; Check if there was an 
   ;; error in the last cicle
   mov dil, byte [cpu_error]
@@ -100,6 +107,7 @@ main_loop:
   or si, bx
   call _decode_error
   jmp main_loop_end
+
 continue_loop:
   ;; Only if there are
   ;; no errors
@@ -107,6 +115,7 @@ continue_loop:
   call _get_keys
 	call updateDT
 	call updateST
+
 main_loop_draw:
   ;; Draw the display
   ;; at the window
@@ -116,6 +125,7 @@ main_loop_draw:
   call _draw_display
   call EndDrawing
   jmp main_loop
+
 main_loop_end:
   call unloadBeepSound
   call CloseWindow
