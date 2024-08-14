@@ -1,4 +1,4 @@
-.TH CHIP8ASM 1 "2024-08-04" \VERSION "CHIP-8 Interpreter Manual"
+.TH CHIP8ASM 1 "2024-08-14" \VERSION "CHIP-8 Interpreter Manual"
 
 .SH NAME
 chip8asm \- A CHIP-8 interpreter written in x64 Linux NASM assembly and Raylib
@@ -23,16 +23,11 @@ reproducing the CHIP-8 instruction set, several enhancements have been made to
 improve performance:
 
 .TP
-.B Program termination
-If the stack pointer is at 0 (bottom of the stack) and a return operation is
-executed, the program terminates.
-
-.TP
 .B Timing
-Raylib has been configured to aim for 60 cycles of the main loop per second.
-This ensures that timers update at their correct frequency (60Hz), though more 
-instructions per second are executed compared to an original CHIP-8 machine, 
-offering a smoother experience.
+Raylib has been configured to aim for 200 FPS, which means that 200 instructions
+are executed per second, but also managing to update timers update at their 
+correct frequency (60Hz). This is done with the intention of providing a 
+smoother user experience.
 
 .TP
 .B Sound
@@ -57,12 +52,6 @@ Some sources for ROMs are:
 .B https://johnearnest.github.io/chip8Archive/
 
 .TP
-.B Warning
-Some ROMs from these sites may contain null codes (0x0000) or other unknown 
-ones that for some reason do not exist in any of the references and people 
-count on them. This might cause the program to crash or freeze.
-
-.TP
 .B Important
 The program does not care about the file extension (some sites may use .c8, 
 .ch8, etc), but it checks if the file size is small enough to fit inside the 
@@ -72,61 +61,6 @@ bytes, given by the addresses 0x200 - 0xFFF).
 .SH USAGE
 .B
 .IR "chip8asm some/directory/to/rom"
-
-.SH COMPILE
-Ensure you have raylib and nasm installed on your system, either statically or
-dynamically (the latter requires manual configuration). To compile the 
-interpreter, follow the commands below:
-
-.B
-.RS
-git clone https://github.com/dpv927/chip8asm.git
-.br
-cd chip8asm/src/
-.br
-make target
-.RE
-
-.TP
-.B Note
-You can now run the executable. However, if you move it to another directory,
-you'll need to relocate the resources folder to the same directory as the 
-executable to ensure sound functionality. To avoid this hassle, consider 
-installing the program.
-
-.SH INSTALL
-If you compiled the project, now you just have to run one command:
-
-.B
-.RS
-sudo make install
-.RE
-
-If you downloaded the interpreter from one of the releases, you just need to 
-move the necessary files to the system path (This assumes that you are inside 
-the downloaded release folder):
-
-.B
-.RS
-sudo cp -f chip8asm /usr/local/bin
-.br
-sudo chmod 755 /usr/local/bin/chip8asm
-.br
-sudo mkdir -p /usr/share/chip8asm
-.br
-sudo cp -f resources/beep.wav /usr/share/chip8asm
-.RE
-
-.SH UNINSTALL
-Of course, you can remove the project from the system path. Just undo the 
-steps from the installation guide:
-
-.B
-.RS
-sudo rm /usr/local/bin/chip8asm
-.br
-sudo rm -rf /usr/share/chip8asm
-.RE
 
 .SH LICENSE
 .B chip8asm

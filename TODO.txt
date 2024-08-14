@@ -18,8 +18,8 @@ x Fix opcode 8xy7: vf can be used as the vx input
 x Fix opcode 8xye: vf can be used as the vx input 
 x Adapt window size to the half of the user screen.
 x Upgrade timers update so the timers can update at 60Hz and the window to other rate.
+x Update the MAN file. @release 
 
-(C) Update the MAN file. @release 
 (C) Update README with the new changes. @release
 (C) Add a table of contents to the README.md. @release
 (C) Update the CHANGELOG.md file. @release

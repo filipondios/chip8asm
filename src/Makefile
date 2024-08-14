@@ -1,5 +1,5 @@
 # chip8asm version
-VERSION = 2.1
+VERSION = 3.0
 
 # Paths
 PREFIX = /usr/local
