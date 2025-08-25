@@ -1,21 +1,7 @@
-<h1 align="center">
-      <img src="src/resources/logo.png" height="200">
-</h1>
+<h1 align="center">Chip8ASM      </h1>
 
 <!-- Project Description -->
-<h4 align="center">A <a href="https://en.wikipedia.org/wiki/CHIP-8">CHIP-8</a> interpreter written in x64 Linux <a href="https://www.nasm.us/">NASM</a> assembly and <a href="https://www.raylib.com/">Raylib</a></h4>
-
-<!-- Quick links -->
-## Table of contents
-
-- <a href="#about">Introduction</a>
-- <a href="#features">Features</a>
-- <a href="#run">Run</a>
-- <a href="#compile">Compile</a>
-- <a href="#install">Install</a>
-- <a href="#uninstall">Uninstall</a>
-- <a href="#todo">TODO</a>
-- <a href="#license">License</a>
+<h4 align="center">A <a href="https://en.wikipedia.org/wiki/CHIP-8">CHIP-8</a> interpreter written in x64 Linux <a href="https://www.nasm.us/">NASM</a> assembly, and using <a href="https://www.raylib.com/">Raylib</a> as render</h4>
 
 ## About
 
