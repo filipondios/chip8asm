@@ -1,16 +1,9 @@
-<h1 align="center">Chip8ASM      </h1>
+# Chip8ASM
 
-<!-- Project Description -->
-<h4 align="center">A <a href="https://en.wikipedia.org/wiki/CHIP-8">CHIP-8</a> interpreter written in x64 Linux <a href="https://www.nasm.us/">NASM</a> assembly, and using <a href="https://www.raylib.com/">Raylib</a> as render</h4>
-
-## About
-
-This project is a fully-functional interpreter for the CHIP-8 programming 
-language, meticulously crafted in assembly language. CHIP-8, originally 
-designed in the 1970s, is a simple, "low-level" programming language used for 
-creating games on early computer systems. The goal of this interpreter is to 
-bring back the nostalgia and charm of CHIP-8, providing a modern implementation
-while preserving the essence of the original.
+This project is a fully-functional interpreter for the [CHIP-8](https://en.wikipedia.org/wiki/CHIP-8) 
+programming language, written in x64 Linux [NASM](https://www.nasm.us/) assembly and using 
+[Raylib](https://www.raylib.com/) to render the CHIP-8's screen. CHIP-8, originally designed in the 
+1970s, is a simple, "low-level" programming language used for creating games on early computer systems.
 
 ## Features
 
@@ -38,12 +31,9 @@ In order to run a ROM file that contains a CHIP-8 program, you need the
 chip8asm executable to run it. You can obtain it via [compiling](#compile) 
 the project and [installing](#install) it, or from any of the releases at the 
 [releases page]. After that, you can run CHIP-8 compatible ROMs using this
-interpreter. Some sources for ROMs are:
-
-- [kripod/chip8-roms](https://github.com/kripod/chip8-roms)
-- [pdroms](https://www.zophar.net/pdroms/chip8.html)
-- [chipo](https://chipo.ber.gp)
-- [johnearnest/chip8Archive](https://johnearnest.github.io/chip8Archive)
+interpreter. Some sources for ROMs are: [kripod/chip8-roms](https://github.com/kripod/chip8-roms),
+[pdroms](https://www.zophar.net/pdroms/chip8.html), [chipo](https://chipo.ber.gp) and
+[johnearnest/chip8Archive](https://johnearnest.github.io/chip8Archive)
 
 To run a ROM, use the following command, where the parameter is the path to
 the ROM file:
