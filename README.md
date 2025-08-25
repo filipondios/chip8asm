@@ -12,20 +12,18 @@ This interpreter is based on well-documented references, such as
 several [test files] have been created for the basic functionality of the
 iterpreter and the opcodes. In addition, we have run and passed all the 
 tests of the [chip8-test-suite], which do a more exhaustive testing of the
-opcodes.
+opcodes. Also, a few enhancements have been made to provide a better experience:
 
-Also, a few enhancements have been made to provide a better experience:
-
-- **Timing**: Raylib has been configured to aim for 200 FPS, which means that
+- ``Timing``: Raylib has been configured to aim for 200 FPS, which means that
 200 instructions are executed per second, but also managing to update timers
 update at their correct frequency (60Hz). This is done with the intention of
 providing a smoother user experience.
 
-- **Sound**: This interpreter has sound support for programs that use the delay
+- ``Sound``: This interpreter has sound support for programs that use the delay
 timer to play the CHIP-8 *beep* sound. This sound has been generated thanks to
 [onlinetonegenerator.com] using a 440Hz frequency and a square wave.
 
-## Run
+## Run CHIP-8 ROMs
 
 In order to run a ROM file that contains a CHIP-8 program, you need the 
 chip8asm executable to run it. You can obtain it via [compiling](#compile) 
@@ -49,7 +47,7 @@ chip8asm some/path/to/rom   # Global path (installed)
 > inside the read-only segment of the CHIP-8 memory (The maximum file size is
 > **3584 (0xE00) bytes**, given by the addresses 0x200 - 0xFFF).
 
-## Compile
+## How to compile this project
 
 Ensure you have [raylib] and [nasm] installed on your system, either statically or 
 dynamically (the last one requires manual configuration). To compile the 
@@ -66,7 +64,7 @@ make target
 > need to relocate the resources folder to the same directory as the executable to ensure
 > sound functionality. To avoid this hassle, consider [installing](#install) the program.
 
-## Install
+## How to install chip8asm
 
 If you compiled the project, now you just have to run one command:
 ```bash
@@ -83,7 +81,7 @@ sudo mkdir -p /usr/share/chip8asm
 sudo cp -f resources/beep.wav /usr/share/chip8asm
 ```
 
-## Uninstall 
+## How to uninstall chip8asm 
 Of course, you can remove the project from the system path. Just undo the steps 
 from the [installation](#install) guide:
 ```bash
