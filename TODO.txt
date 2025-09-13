@@ -1,3 +1,4 @@
+(A) Move Makefile at the root of the repository
 (A) Develop a graphical user interface for ROM selection. @usability
 (B) Implement sound and timers in nasm instead of c.
 (B) Change cpu_keyboard to a 16-bit word instead of an 8-bit (boolean) array of 16 elements. 
